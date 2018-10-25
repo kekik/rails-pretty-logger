@@ -10,13 +10,14 @@ Gem::Specification.new do |s|
   s.authors     = ["Cem"]
   s.email       = ["cbaykam@gmail.com"]
   s.homepage    = ""
-  s.summary     = "Summary of Rails::Pretty::Logger."
-  s.description = "Description of Rails::Pretty::Logger."
+  s.summary     = ": Summary of Rails::Pretty::Logger."
+  s.description = ": Description of Rails::Pretty::Logger."
   s.license     = "MIT"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
 
-  s.add_dependency "rails", "~> 5.2.0"
+  s.add_dependency "rails", "~> 5.2.1"
 
   s.add_development_dependency "sqlite3"
+  s.add_development_dependency 'rspec-rails'
 end
