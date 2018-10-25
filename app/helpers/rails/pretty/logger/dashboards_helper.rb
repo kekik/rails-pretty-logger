@@ -7,5 +7,9 @@ module Rails::Pretty::Logger
         line
       end
     end
+
+    def time_now
+      Time.now.strftime("%Y-%m-%d")
+    end
   end
 end

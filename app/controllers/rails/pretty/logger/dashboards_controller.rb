@@ -4,26 +4,18 @@ module Rails::Pretty::Logger
   class DashboardsController < ApplicationController
 
     def log_file
+      @start_date = params[:date_range][:start]
+      @end_date = params[:date_range][:end]
 
-      @log = PrettyLogger.new("#{params[:log_file]}.log")
-      @log_files = @log.get_log_list
-      @log_size = @log.file_size(@log)
-      @time_now = Time.now.strftime("%Y-%m-%d")
-      date = params[:date_range]
-      @start_date = date[:start]
-      @end_date = date[:end]
-      page = params[:page].to_i ||= 0
-
-      open_page = @log.open_log_page( @log.log_file, date[:start], date[:end] )
-      @log_file_line_count = (open_page.count.to_f/100).ceil
-      @paginated_logs = open_page[ page * 100 .. (page * 100) + 100 ]
-
+      @log = PrettyLogger.new("#{params[:log_file]}.log", params)
+      @log_files = @log.list
+      @log_file_line_count = @log.logs_count
+      @paginated_logs = @log.paginated_logs
     end
 
     def index
-      @log = PrettyLogger.new
-      @log_files = @log.get_log_list
-      @time_now = Time.now.strftime("%Y-%m-%d")
+      @log = PrettyLogger.new("#{params[:log_file]}.log", params)
+      @log_files = PrettyLogger.get_log_list
     end
 
   end

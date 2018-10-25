@@ -26,3 +26,11 @@ Processing by Rails::Pretty::Logger::DashboardsController#index as HTML
   Template rendering was prevented by rspec-rails. Use `render_views` to verify rendered view contents if necessary.
 Completed 200 OK in 6ms (Views: 3.1ms | ActiveRecord: 0.0ms)
   [1m[35m (0.1ms)[0m  [1m[31mrollback transaction[0m
+  [1m[35m (0.0ms)[0m  [1m[36mbegin transaction[0m
+Processing by Rails::Pretty::Logger::DashboardsController#index as HTML
+  Rendering /home/mehmet/project/rails/rails-pretty-logger/app/views/rails/pretty/logger/dashboards/index.html.erb within layouts/rails/pretty/logger/application
+  Template rendering was prevented by rspec-rails. Use `render_views` to verify rendered view contents if necessary.
+  Rendered /home/mehmet/project/rails/rails-pretty-logger/app/views/rails/pretty/logger/dashboards/index.html.erb within layouts/rails/pretty/logger/application (0.9ms)
+  Template rendering was prevented by rspec-rails. Use `render_views` to verify rendered view contents if necessary.
+Completed 200 OK in 10ms (Views: 6.3ms | ActiveRecord: 0.0ms)
+  [1m[35m (0.1ms)[0m  [1m[31mrollback transaction[0m

@@ -6,12 +6,34 @@ module Rails
 
       class PrettyLogger
 
-        def initialize(log_file = "development.log")
+        def initialize(log_file = "#{Rails.env}.log", params)
           @log_file = File.join(Rails.root, 'log', log_file)
+          @log_list = PrettyLogger.get_log_list
+          if params[:date_range].present?
+            @logs = PrettyLogger.open_log_page(@log_file, params[:date_range][:start], params[:date_range][:end])
+            @logs_count =  (@logs.count.to_f/100).ceil
+            @paginated_logs = @logs[ params[:page].to_i * 100 .. (params[:page].to_i * 100) + 100 ]
+          end
         end
 
         def self.logger
           Rails.logger
+        end
+
+        def parsed_logs
+          @logs
+        end
+
+        def list
+          @log_list
+        end
+
+        def paginated_logs
+          @paginated_logs
+        end
+
+        def logs_count
+          @logs_count
         end
 
         def self.highlight(log)
@@ -22,46 +44,42 @@ module Rails
           @log_file
         end
 
-        def file_size(log_file)
+        def self.file_size(log_file)
           File.size?("./#{log_file}").to_f / 2**20
         end
 
-        def get_log_list
+        def self.get_log_list
           log = {}
           log_files =  Dir["**/*.log"]
           log_files.each_with_index do |log_file,index|
             log[index] = {}
             log[index][:file_name] =  File.basename(log_file, ".log")
-            log[index][:file_size] = file_size(log_file).round(4)
+            log[index][:file_size] = self.file_size(log_file).round(4)
           end
           return log
         end
 
-        def get_log_line_count(file)
-          File.foreach(file).count
-        end
-
-        def open_log_page(file, start_date, end_date)
+        def self.open_log_page(file, start_date, end_date)
 
           arr = []
 
           start = false
 
-          IO.foreach(file).with_index do |line, index|
-            if get_log_date(line, start_date, end_date)
+          IO.foreach(file) do |line|
+            if self.get_log_date(line, start_date, end_date)
               start = true
               arr.push(line)
-            elsif start && check_line_include_date(line)
+            elsif start && !(self.check_line_include_date(line))
               arr.push(line)
-            elsif (get_log_date(line, start_date, end_date)) == false
+            elsif (self.get_log_date(line, start_date, end_date)) == false
               start = false
             end
           end
           return arr
         end
 
-        def get_log_date(line, start_date, end_date)
-          if line.include?("Started")
+        def self.get_log_date(line, start_date, end_date)
+          if self.check_line_include_date(line)
             date_string_index = line.index("at ")
             string_date = line[date_string_index .. date_string_index + 13]
             date = string_date.to_date.strftime("%Y-%m-%d")
@@ -69,8 +87,8 @@ module Rails
           end
         end
 
-        def check_line_include_date(line)
-          !(line.include?("Started"))
+        def self.check_line_include_date(line)
+          line.include?("Started")
         end
 
       end
