@@ -10,7 +10,9 @@ module Rails
           @log_file = File.join(Rails.root, 'log', log_file)
           @log_file_list = PrettyLogger.get_log_list
           date = params[:date_range]
+
           if date.present?
+            @error = validate_date(date)
             @logs_start_date = date[:start]
             @logs_end_date = date[:end]
             @logs = PrettyLogger.open_log_page(@log_file, date[:start], date[:end])
@@ -23,9 +25,14 @@ module Rails
           Rails.logger
         end
 
+        def error
+          @error
+        end
+
         def start_date
           @logs_start_date
         end
+
         def end_date
           @logs_end_date
         end
@@ -91,6 +98,12 @@ module Rails
 
         def self.check_line_include_date(line)
           line.include?("Started")
+        end
+
+        def validate_date(params)
+          if params[:start] > params[:end]
+            "End Date should not be less than Start Date."
+          end
         end
 
       end

@@ -1,3 +1,9 @@
+<% if @log.error.present? %>
+  <p>
+    <%= @log.error %>
+  </p>
+<% end %>
+
 <div>
   <% @log.file_list.each do |key, value| %>
   <%= link_to(value[:file_name].capitalize,

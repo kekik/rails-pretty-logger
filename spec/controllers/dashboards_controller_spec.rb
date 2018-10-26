@@ -10,14 +10,16 @@ module Rails
         describe "GET #index" do
           it "returns http success" do
             get :index
-            expect(response).to have_http_status(:success)
+            expect(response).to be_successful
           end
         end
 
         describe "GET #log_file" do
           it "returns http success" do
-            get :log_file, params: {log_file: "development", date_range: {start: Time.now.strftime("%Y-%m-%d") , end: Time.now.strftime("%Y-%m-%d") }}
-            expect(response).to have_http_status(:success)
+            get :log_file, params: {log_file: "development",
+               date_range: {start: Time.now.strftime("%Y-%m-%d"),
+               end: Time.now.strftime("%Y-%m-%d") }}
+            expect(response).to be_successful
           end
         end
 
