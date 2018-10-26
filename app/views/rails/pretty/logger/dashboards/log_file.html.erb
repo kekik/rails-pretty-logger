@@ -16,7 +16,7 @@
 
 <% @log.logs_count.times do |index| %>
 <%= link_to(
-    index+1,
+    index + 1,
     log_file_dashboards_path(
       log_file: params[:log_file],
       page: index,

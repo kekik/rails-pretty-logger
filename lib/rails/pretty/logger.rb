@@ -6,19 +6,20 @@ module Rails
 
       class PrettyLogger
 
-        def initialize(log_file = "#{Rails.env}.log", params)
-          @log_file = File.join(Rails.root, 'log', log_file)
-          @log_file_list = PrettyLogger.get_log_list
-          date = params[:date_range]
+        def initialize( params )
 
-          if date.present?
-            @error = validate_date(date)
-            @logs_start_date = date[:start]
-            @logs_end_date = date[:end]
-            @logs = PrettyLogger.open_log_page(@log_file, date[:start], date[:end])
-            @logs_count =  (@logs.count.to_f/100).ceil
-            @paginated_logs = @logs[ params[:page].to_i * 100 .. (params[:page].to_i * 100) + 100 ]
-          end
+          @log_file = File.join(Rails.root, 'log', "#{params[:log_file]}.log")
+          @log_file_list = PrettyLogger.get_log_list
+
+          date = params[:date_range]
+          @error = validate_date(date)
+          @logs_start_date = date[:start]
+          @logs_end_date = date[:end]
+
+          @logs = PrettyLogger.filter_logs_with_date(@log_file, date[:start], date[:end])
+          @logs_count =  (@logs.count.to_f/100).ceil
+          @paginated_logs = @logs[ params[:page].to_i * 100 .. (params[:page].to_i * 100) + 100 ]
+
         end
 
         def self.logger
@@ -68,7 +69,7 @@ module Rails
           return log
         end
 
-        def self.open_log_page(file, start_date, end_date)
+        def self.filter_logs_with_date(file, start_date, end_date)
 
           arr = []
 
@@ -101,8 +102,10 @@ module Rails
         end
 
         def validate_date(params)
-          if params[:start] > params[:end]
+          if (params[:start] > params[:end]) && (params[:start].present? && params[:end].present?)
             "End Date should not be less than Start Date."
+          elsif  params[:start].blank? || params[:end].blank?
+            "Start and End Date must be given."
           end
         end
 
