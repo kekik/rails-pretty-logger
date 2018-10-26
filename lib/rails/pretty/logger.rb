@@ -9,10 +9,11 @@ module Rails
         def initialize(log_file = "#{Rails.env}.log", params)
           @log_file = File.join(Rails.root, 'log', log_file)
           @log_file_list = PrettyLogger.get_log_list
-          if params[:date_range].present?
-            @logs_start_date = params[:date_range][:start]
-            @logs_end_date = params[:date_range][:end]
-            @logs = PrettyLogger.open_log_page(@log_file, params[:date_range][:start], params[:date_range][:end])
+          date = params[:date_range]
+          if date.present?
+            @logs_start_date = date[:start]
+            @logs_end_date = date[:end]
+            @logs = PrettyLogger.open_log_page(@log_file, date[:start], date[:end])
             @logs_count =  (@logs.count.to_f/100).ceil
             @paginated_logs = @logs[ params[:page].to_i * 100 .. (params[:page].to_i * 100) + 100 ]
           end
@@ -27,9 +28,6 @@ module Rails
         end
         def end_date
           @logs_end_date
-        end
-        def parsed_logs
-          @logs
         end
 
         def file_list
@@ -46,10 +44,6 @@ module Rails
 
         def self.highlight(log)
           self.logger.tagged('HIGHLIGHT') { logger.info log }
-        end
-
-        def log_file
-          @log_file
         end
 
         def self.file_size(log_file)
