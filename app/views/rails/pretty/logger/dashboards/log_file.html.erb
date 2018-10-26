@@ -1,18 +1,20 @@
 <div>
-  <% @log_files.each do |key, value| %>
-  <%= link_to(value[:file_name].capitalize, log_file_dashboards_path(log_file: value[:file_name], date_range: { start: time_now, end: time_now }),
-  html_options = {class: "btn btn-default", data: { confirm: "Log file size is #{ value[:file_size] } MB. Are you sure to open this file? " }}) %>
+  <% @log.file_list.each do |key, value| %>
+  <%= link_to(value[:file_name].capitalize,
+    log_file_dashboards_path(log_file: value[:file_name], date_range: { start: time_now, end: time_now }),
+  html_options = {class: "btn btn-default",
+     data: { confirm: "Log file size is #{ value[:file_size] } MB. Are you sure to open this file? " }}) %>
   <% end %>
 </div>
 <hr>
 
-<% @log_file_line_count.times do |index| %>
+<% @log.logs_count.times do |index| %>
 <%= link_to(
     index+1,
     log_file_dashboards_path(
       log_file: params[:log_file],
       page: index,
-      date_range: { start: @start_date, end: @end_date }
+      date_range: { start: @log.start_date, end: @log.end_date }
     )
   ) %>
     <% end %>
@@ -22,16 +24,16 @@
   <%= form_for :date_range, url: log_file_dashboards_path(log_file: params[:log_file]), method: :post do |f| %>
     <p>
       <%= label(:start,   :title, "Start Date:") %>
-      <%= f.date_field(:start, value: @start_date, max: Date.today) %>
+      <%= f.date_field(:start, value: @log.start_date, max: Date.today) %>
       <%= label(:end, :title, "End Date:") %>
-      <%= f.date_field(:end, value: @end_date, max: Date.today) %>
+      <%= f.date_field(:end, value: @log.end_date, max: Date.today) %>
       <%= f.submit "Submit" %>
     </p>
   <%- end%>
 </div>
 <hr>
 
-<% @paginated_logs.each do |line| %>
+<%  @log.paginated_logs.each do |line| %>
   <p>
     <%= check_highlight(line) %>
   </p>

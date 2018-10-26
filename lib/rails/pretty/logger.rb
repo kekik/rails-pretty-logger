@@ -8,8 +8,10 @@ module Rails
 
         def initialize(log_file = "#{Rails.env}.log", params)
           @log_file = File.join(Rails.root, 'log', log_file)
-          @log_list = PrettyLogger.get_log_list
+          @log_file_list = PrettyLogger.get_log_list
           if params[:date_range].present?
+            @logs_start_date = params[:date_range][:start]
+            @logs_end_date = params[:date_range][:end]
             @logs = PrettyLogger.open_log_page(@log_file, params[:date_range][:start], params[:date_range][:end])
             @logs_count =  (@logs.count.to_f/100).ceil
             @paginated_logs = @logs[ params[:page].to_i * 100 .. (params[:page].to_i * 100) + 100 ]
@@ -20,12 +22,18 @@ module Rails
           Rails.logger
         end
 
+        def start_date
+          @logs_start_date
+        end
+        def end_date
+          @logs_end_date
+        end
         def parsed_logs
           @logs
         end
 
-        def list
-          @log_list
+        def file_list
+          @log_file_list
         end
 
         def paginated_logs
