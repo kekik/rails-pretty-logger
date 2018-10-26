@@ -9,14 +9,14 @@ module Rails
         def initialize( params )
 
           @log_file = File.join(Rails.root, 'log', "#{params[:log_file]}.log")
-          @log_file_list = PrettyLogger.get_log_list
+          @log_file_list = PrettyLogger.get_log_file_list
 
           date = params[:date_range]
           @error = validate_date(date)
           @logs_start_date = date[:start]
           @logs_end_date = date[:end]
 
-          @logs = PrettyLogger.filter_logs_with_date(@log_file, date[:start], date[:end])
+          @logs = filter_logs_with_date(@log_file, date[:start], date[:end])
           @logs_count =  (@logs.count.to_f/100).ceil
           @paginated_logs = @logs[ params[:page].to_i * 100 .. (params[:page].to_i * 100) + 100 ]
 
@@ -58,7 +58,7 @@ module Rails
           File.size?("./#{log_file}").to_f / 2**20
         end
 
-        def self.get_log_list
+        def self.get_log_file_list
           log = {}
           log_files =  Dir["**/*.log"]
           log_files.each_with_index do |log_file,index|
@@ -69,27 +69,27 @@ module Rails
           return log
         end
 
-        def self.filter_logs_with_date(file, start_date, end_date)
+        def filter_logs_with_date(file, start_date, end_date)
 
           arr = []
 
           start = false
 
           IO.foreach(file) do |line|
-            if self.get_log_date(line, start_date, end_date)
+            if get_log_date(line, start_date, end_date)
               start = true
               arr.push(line)
-            elsif start && !(self.check_line_include_date(line))
+            elsif start && !(check_line_include_date(line))
               arr.push(line)
-            elsif (self.get_log_date(line, start_date, end_date)) == false
+            elsif (get_log_date(line, start_date, end_date)) == false
               start = false
             end
           end
           return arr
         end
 
-        def self.get_log_date(line, start_date, end_date)
-          if self.check_line_include_date(line)
+        def get_log_date(line, start_date, end_date)
+          if check_line_include_date(line)
             date_string_index = line.index("at ")
             string_date = line[date_string_index .. date_string_index + 13]
             date = string_date.to_date.strftime("%Y-%m-%d")
@@ -97,7 +97,7 @@ module Rails
           end
         end
 
-        def self.check_line_include_date(line)
+        def check_line_include_date(line)
           line.include?("Started")
         end
 

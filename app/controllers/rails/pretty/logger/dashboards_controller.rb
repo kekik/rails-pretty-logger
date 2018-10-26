@@ -8,7 +8,7 @@ module Rails::Pretty::Logger
     end
 
     def index
-      @log_file_list = PrettyLogger.get_log_list
+      @log_file_list = PrettyLogger.get_log_file_list
     end
 
   end
