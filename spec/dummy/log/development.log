@@ -3618,3 +3618,59 @@ Processing by Rails::Pretty::Logger::DashboardsController#log_file as HTML
 Completed 200 OK in 29ms (Views: 25.6ms | ActiveRecord: 0.0ms)
 
 
+Started GET "/rails-pretty-logger/dashboards/log_file?date_range%5Bend%5D=2018-10-25&date_range%5Bstart%5D=2018-10-25&log_file=test" for 127.0.0.1 at 2018-10-25 15:24:33 +0300
+Processing by Rails::Pretty::Logger::DashboardsController#log_file as HTML
+  Parameters: {"date_range"=>{"end"=>"2018-10-25", "start"=>"2018-10-25"}, "log_file"=>"test"}
+  Rendering /home/mehmet/project/rails/rails-pretty-logger/app/views/rails/pretty/logger/dashboards/log_file.html.erb within layouts/rails/pretty/logger/application
+  Rendered /home/mehmet/project/rails/rails-pretty-logger/app/views/rails/pretty/logger/dashboards/log_file.html.erb within layouts/rails/pretty/logger/application (3.2ms)
+Completed 200 OK in 25ms (Views: 21.9ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/rails-pretty-logger/dashboards/log_file?date_range%5Bend%5D=2018-10-25&date_range%5Bstart%5D=2018-10-25&log_file=development" for 127.0.0.1 at 2018-10-25 15:24:37 +0300
+Processing by Rails::Pretty::Logger::DashboardsController#log_file as HTML
+  Parameters: {"date_range"=>{"end"=>"2018-10-25", "start"=>"2018-10-25"}, "log_file"=>"development"}
+  Rendering /home/mehmet/project/rails/rails-pretty-logger/app/views/rails/pretty/logger/dashboards/log_file.html.erb within layouts/rails/pretty/logger/application
+  Rendered /home/mehmet/project/rails/rails-pretty-logger/app/views/rails/pretty/logger/dashboards/log_file.html.erb within layouts/rails/pretty/logger/application (10.4ms)
+Completed 200 OK in 45ms (Views: 30.6ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/rails-pretty-logger/dashboards/log_file?date_range%5Bend%5D=2018-10-25&date_range%5Bstart%5D=2018-10-25&log_file=development0" for 127.0.0.1 at 2018-10-25 15:24:52 +0300
+Processing by Rails::Pretty::Logger::DashboardsController#log_file as HTML
+  Parameters: {"date_range"=>{"end"=>"2018-10-25", "start"=>"2018-10-25"}, "log_file"=>"development0"}
+  Rendering /home/mehmet/project/rails/rails-pretty-logger/app/views/rails/pretty/logger/dashboards/log_file.html.erb within layouts/rails/pretty/logger/application
+  Rendered /home/mehmet/project/rails/rails-pretty-logger/app/views/rails/pretty/logger/dashboards/log_file.html.erb within layouts/rails/pretty/logger/application (4.1ms)
+Completed 200 OK in 52ms (Views: 17.0ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/rails-pretty-logger/dashboards/log_file?log_file=development0" for 127.0.0.1 at 2018-10-25 15:24:56 +0300
+Processing by Rails::Pretty::Logger::DashboardsController#log_file as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"mZn1/qWBaq7DjSYy9ux2e2aiUiKEzkJCHLmDdCMGudPEj6JX/HAWwVaFAyMUcTZvttZDoMp2EYrj0XWb/Osgnw==", "date_range"=>{"start"=>"2018-10-24", "end"=>"2018-10-24"}, "commit"=>"Submit", "log_file"=>"development0"}
+  Rendering /home/mehmet/project/rails/rails-pretty-logger/app/views/rails/pretty/logger/dashboards/log_file.html.erb within layouts/rails/pretty/logger/application
+  Rendered /home/mehmet/project/rails/rails-pretty-logger/app/views/rails/pretty/logger/dashboards/log_file.html.erb within layouts/rails/pretty/logger/application (15.1ms)
+Completed 200 OK in 114ms (Views: 31.7ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/rails-pretty-logger/dashboards/log_file?date_range%5Bend%5D=2018-10-24&date_range%5Bstart%5D=2018-10-24&log_file=development0&page=69" for 127.0.0.1 at 2018-10-25 15:24:58 +0300
+Processing by Rails::Pretty::Logger::DashboardsController#log_file as HTML
+  Parameters: {"date_range"=>{"end"=>"2018-10-24", "start"=>"2018-10-24"}, "log_file"=>"development0", "page"=>"69"}
+  Rendering /home/mehmet/project/rails/rails-pretty-logger/app/views/rails/pretty/logger/dashboards/log_file.html.erb within layouts/rails/pretty/logger/application
+  Rendered /home/mehmet/project/rails/rails-pretty-logger/app/views/rails/pretty/logger/dashboards/log_file.html.erb within layouts/rails/pretty/logger/application (20.0ms)
+Completed 200 OK in 116ms (Views: 39.7ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/rails-pretty-logger/dashboards/log_file?date_range%5Bend%5D=2018-10-24&date_range%5Bstart%5D=2018-10-24&log_file=development0&page=44" for 127.0.0.1 at 2018-10-25 15:27:01 +0300
+Processing by Rails::Pretty::Logger::DashboardsController#log_file as HTML
+  Parameters: {"date_range"=>{"end"=>"2018-10-24", "start"=>"2018-10-24"}, "log_file"=>"development0", "page"=>"44"}
+  Rendering /home/mehmet/project/rails/rails-pretty-logger/app/views/rails/pretty/logger/dashboards/log_file.html.erb within layouts/rails/pretty/logger/application
+  Rendered /home/mehmet/project/rails/rails-pretty-logger/app/views/rails/pretty/logger/dashboards/log_file.html.erb within layouts/rails/pretty/logger/application (18.3ms)
+Completed 200 OK in 106ms (Views: 29.9ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/rails-pretty-logger/dashboards/log_file?date_range%5Bend%5D=2018-10-25&date_range%5Bstart%5D=2018-10-25&log_file=development" for 127.0.0.1 at 2018-10-25 15:51:08 +0300
+Processing by Rails::Pretty::Logger::DashboardsController#log_file as HTML
+  Parameters: {"date_range"=>{"end"=>"2018-10-25", "start"=>"2018-10-25"}, "log_file"=>"development"}
+  Rendering /home/mehmet/project/rails/rails-pretty-logger/app/views/rails/pretty/logger/dashboards/log_file.html.erb within layouts/rails/pretty/logger/application
+  Rendered /home/mehmet/project/rails/rails-pretty-logger/app/views/rails/pretty/logger/dashboards/log_file.html.erb within layouts/rails/pretty/logger/application (18.3ms)
+Completed 200 OK in 59ms (Views: 38.1ms | ActiveRecord: 0.0ms)
+
+
