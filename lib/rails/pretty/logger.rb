@@ -7,7 +7,7 @@ module Rails
       class PrettyLogger
 
         def initialize( params, divider = 100 )
-
+          
           @log_file = File.join(Rails.root, 'log', "#{params[:log_file]}.log")
           @log_file_list = PrettyLogger.get_log_file_list
 
