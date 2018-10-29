@@ -6,7 +6,7 @@ module Rails
 
       class PrettyLogger
 
-        def initialize( params )
+        def initialize( params, divider = 100 )
 
           @log_file = File.join(Rails.root, 'log', "#{params[:log_file]}.log")
           @log_file_list = PrettyLogger.get_log_file_list
@@ -17,8 +17,8 @@ module Rails
           @logs_end_date = date[:end]
 
           @logs = filter_logs_with_date(@log_file, date[:start], date[:end])
-          @logs_count =  (@logs.count.to_f/100).ceil
-          @paginated_logs = @logs[ params[:page].to_i * 100 .. (params[:page].to_i * 100) + 100 ]
+          @logs_count =  (@logs.count.to_f / divider).ceil
+          @paginated_logs = @logs[ params[:page].to_i * divider .. (params[:page].to_i * divider) + divider ]
 
         end
 
@@ -76,12 +76,15 @@ module Rails
           start = false
 
           IO.foreach(file) do |line|
-            if get_log_date(line, start_date, end_date)
+
+            line_log_date = get_log_date(line, start_date, end_date)
+
+            if line_log_date
               start = true
               arr.push(line)
             elsif start && !(check_line_include_date(line))
               arr.push(line)
-            elsif (get_log_date(line, start_date, end_date)) == false
+            elsif line_log_date == false
               start = false
             end
           end
