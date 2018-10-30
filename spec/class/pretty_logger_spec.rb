@@ -30,7 +30,6 @@ module Rails
               "start" => Time.now.strftime("%Y-%m-%d")}, log_file: "rspec_test" )
             subject = PrettyLogger.new( params )
             expect(subject.error).to eq("End Date should not be less than Start Date.")
-            expect(subject.logs_count).to eq(0)
           end
 
           it "get log file list" do

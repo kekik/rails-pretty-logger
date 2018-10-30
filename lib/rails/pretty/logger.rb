@@ -7,7 +7,7 @@ module Rails
       class PrettyLogger
 
         def initialize( params, divider = 100 )
-          
+
           @log_file = File.join(Rails.root, 'log', "#{params[:log_file]}.log")
           @log_file_list = PrettyLogger.get_log_file_list
 
@@ -16,7 +16,7 @@ module Rails
           @logs_start_date = date[:start]
           @logs_end_date = date[:end]
 
-          @logs = filter_logs_with_date(@log_file, date[:start], date[:end])
+          @logs = get_logs_from_file(@log_file, params[:log_file], date[:start], date[:end])
           @logs_count =  (@logs.count.to_f / divider).ceil
           @paginated_logs = @logs[ params[:page].to_i * divider .. (params[:page].to_i * divider) + divider ]
 
@@ -77,7 +77,7 @@ module Rails
 
           IO.foreach(file) do |line|
 
-            line_log_date = get_log_date(line, start_date, end_date)
+            line_log_date = get_date_from_log_line(line, start_date, end_date)
 
             if line_log_date
               start = true
@@ -91,7 +91,25 @@ module Rails
           return arr
         end
 
-        def get_log_date(line, start_date, end_date)
+        def get_test_logs(file)
+
+          arr = []
+
+          IO.foreach(file) do |line|
+            arr.push(line)
+          end
+          return arr
+        end
+
+        def get_logs_from_file(file, file_name, start_date, end_date)
+          unless file_name.include?("test")
+            filter_logs_with_date(file, start_date, end_date)
+          else
+            get_test_logs(file)
+          end
+        end
+
+        def get_date_from_log_line(line, start_date, end_date)
           if check_line_include_date(line)
             date_string_index = line.index("at ")
             string_date = line[date_string_index .. date_string_index + 13]
