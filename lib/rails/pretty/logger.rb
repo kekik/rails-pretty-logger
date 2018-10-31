@@ -123,8 +123,10 @@ module Rails
         end
 
         def validate_date(params)
-          if (params[:start] > params[:end]) && (params[:start].present? && params[:end].present?)
+          if (params[:start].present? && params[:end].present?)
+            if (params[:start] > params[:end])
             "End Date should not be less than Start Date."
+            end
           elsif  params[:start].blank? || params[:end].blank?
             "Start and End Date must be given."
           end
