@@ -10,13 +10,9 @@ module Rails
 
           @log_file = File.join(Rails.root, 'log', "#{params[:log_file]}.log")
           @log_file_list = PrettyLogger.get_log_file_list
-
-          date = params[:date_range]
-          @error = validate_date(date)
-          @logs_start_date = date[:start]
-          @logs_end_date = date[:end]
-
-          @logs = get_logs_from_file(@log_file, params[:log_file], date[:start], date[:end])
+          @filter_params = params
+          @error = validate_date()
+          @logs = get_logs_from_file(@log_file)
           @logs_count =  (@logs.count.to_f / divider).ceil
           @paginated_logs = @logs[ params[:page].to_i * divider .. (params[:page].to_i * divider) + divider ]
 
@@ -31,11 +27,11 @@ module Rails
         end
 
         def start_date
-          @logs_start_date
+          @filter_params[:date_range][:start]
         end
 
         def end_date
-          @logs_end_date
+          @filter_params[:date_range][:end]
         end
 
         def file_list
@@ -69,7 +65,7 @@ module Rails
           return log
         end
 
-        def filter_logs_with_date(file, start_date, end_date)
+        def filter_logs_with_date(file)
 
           arr = []
 
@@ -77,7 +73,7 @@ module Rails
 
           IO.foreach(file) do |line|
 
-            line_log_date = get_date_from_log_line(line, start_date, end_date)
+            line_log_date = get_date_from_log_line(line)
 
             if line_log_date
               start = true
@@ -101,20 +97,20 @@ module Rails
           return arr
         end
 
-        def get_logs_from_file(file, file_name, start_date, end_date)
-          unless file_name.include?("test")
-            filter_logs_with_date(file, start_date, end_date)
+        def get_logs_from_file(file)
+          unless @filter_params[:log_file].include?("test")
+            filter_logs_with_date(file)
           else
             get_test_logs(file)
           end
         end
 
-        def get_date_from_log_line(line, start_date, end_date)
+        def get_date_from_log_line(line)
           if check_line_include_date(line)
             date_string_index = line.index("at ")
             string_date = line[date_string_index .. date_string_index + 13]
             date = string_date.to_date.strftime("%Y-%m-%d")
-            date.between?( start_date, end_date  )
+            date.between?( @filter_params[:date_range][:start], @filter_params[:date_range][:end]  )
           end
         end
 
@@ -122,10 +118,12 @@ module Rails
           line.include?("Started")
         end
 
-        def validate_date(params)
+        def validate_date()
+          params = @filter_params[:date_range]
+
           if (params[:start].present? && params[:end].present?)
             if (params[:start] > params[:end])
-            "End Date should not be less than Start Date."
+              "End Date should not be less than Start Date."
             end
           elsif  params[:start].blank? || params[:end].blank?
             "Start and End Date must be given."
