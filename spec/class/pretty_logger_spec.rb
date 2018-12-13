@@ -22,7 +22,7 @@ module Rails
               "start" => Time.now.strftime("%Y-%m-%d")}, log_file: "rspec_test" )
               subject = PrettyLogger.new( params )
               expect(subject.error).to be_nil
-              expect(subject.logs_count).to eq(1)
+              expect(subject.log_data[:logs_count]).to eq(1)
             end
 
           it "validation fails" do

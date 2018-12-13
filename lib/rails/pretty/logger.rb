@@ -6,16 +6,11 @@ module Rails
 
       class PrettyLogger
 
-        def initialize( params, divider = 100 )
-
+        def initialize( params )
           @log_file = File.join(Rails.root, 'log', "#{params[:log_file]}.log")
-          @log_file_list = PrettyLogger.get_log_file_list
           @filter_params = params
+          @log_file_list = PrettyLogger.get_log_file_list
           @error = validate_date()
-          @logs = get_logs_from_file(@log_file)
-          @logs_count =  (@logs.count.to_f / divider).ceil
-          @paginated_logs = @logs[ params[:page].to_i * divider .. (params[:page].to_i * divider) + divider ]
-
         end
 
         def self.logger
@@ -36,14 +31,6 @@ module Rails
 
         def file_list
           @log_file_list
-        end
-
-        def paginated_logs
-          @paginated_logs
-        end
-
-        def logs_count
-          @logs_count
         end
 
         def self.highlight(log)
@@ -128,6 +115,18 @@ module Rails
           elsif  params[:start].blank? || params[:end].blank?
             "Start and End Date must be given."
           end
+        end
+
+        def log_data
+
+          divider = @filter_params[:date_range][:divider] ||= 100
+          logs = get_logs_from_file(@log_file)
+          logs_count =  (logs.count.to_f / divider.to_i).ceil
+          paginated_logs = logs[ @filter_params[:page].to_i * divider.to_i .. (@filter_params[:page].to_i * divider.to_i) + divider.to_i ]
+          data = {}
+          data[:logs_count] = logs_count
+          data[:paginated_logs] = paginated_logs
+          return data
         end
 
       end

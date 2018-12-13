@@ -5,6 +5,7 @@ module Rails::Pretty::Logger
 
     def log_file
       @log = PrettyLogger.new( params )
+      @log_data = @log.log_data
     end
 
     def index
