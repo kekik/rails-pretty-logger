@@ -1,6 +1,6 @@
-<% if @log.error.present? %>
+<% if @log_data[:error].present? %>
   <p>
-    <%= @log.error %>
+    <%= @log_data[:error] %>
   </p>
 <% end %>
 
@@ -21,7 +21,7 @@
     log_file_dashboards_path(
       log_file: params[:log_file],
       page: index,
-      date_range: { start: @log.start_date, end: @log.end_date, divider: params[:date_range][:divider] }
+      date_range: { start: @log.start_date, end: @log.end_date, divider: set_divider(params) }
     )
   ) %>
     <% end %>
@@ -35,7 +35,7 @@
       <%= label(:end, :title, "End Date:") %>
       <%= f.date_field(:end, value: @log.end_date, max: Date.today) %>
       <%= label(:divider, :title, "Divider:") %>
-      <%= f.number_field(:divider, value: params[:date_range][:divider] ||= 100) %>
+      <%= f.number_field(:divider, value: set_divider(params)) %>
       <%= f.submit "Submit" %>
     </p>
   <%- end%>

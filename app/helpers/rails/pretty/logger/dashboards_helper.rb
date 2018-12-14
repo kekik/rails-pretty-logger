@@ -11,5 +11,8 @@ module Rails::Pretty::Logger
     def time_now
       Time.now.strftime("%Y-%m-%d")
     end
+    def set_divider(params)
+      params[:date_range].present? ? params[:date_range][:divider] : 100
+    end
   end
 end

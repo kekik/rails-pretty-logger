@@ -21,15 +21,17 @@ module Rails
             params = ActionController::Parameters.new(date_range: {"end" => Time.now.strftime("%Y-%m-%d"),
               "start" => Time.now.strftime("%Y-%m-%d")}, log_file: "rspec_test" )
               subject = PrettyLogger.new( params )
-              expect(subject.error).to be_nil
+              expect(subject.log_data[:error]).to be_nil
               expect(subject.log_data[:logs_count]).to eq(1)
+              expect(subject.log_data[:paginated_logs][0]).to eq(
+                "Started GET \"/rails-pretty-logger/dashboards\" for 127.0.0.1 at 2018-12-14 11:17:00 +0300\n")
             end
 
           it "validation fails" do
             params = ActionController::Parameters.new(date_range: {"end" => (Time.now - 1.days).strftime("%Y-%m-%d"),
               "start" => Time.now.strftime("%Y-%m-%d")}, log_file: "rspec_test" )
             subject = PrettyLogger.new( params )
-            expect(subject.error).to eq("End Date should not be less than Start Date.")
+            expect(subject.log_data[:error]).to eq("End Date should not be less than Start Date.")
           end
 
           it "get log file list" do

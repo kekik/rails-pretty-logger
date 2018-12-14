@@ -9,28 +9,10 @@ module Rails
         def initialize( params )
           @log_file = File.join(Rails.root, 'log', "#{params[:log_file]}.log")
           @filter_params = params
-          @log_file_list = PrettyLogger.get_log_file_list
-          @error = validate_date()
         end
 
         def self.logger
           Rails.logger
-        end
-
-        def error
-          @error
-        end
-
-        def start_date
-          @filter_params[:date_range][:start]
-        end
-
-        def end_date
-          @filter_params[:date_range][:end]
-        end
-
-        def file_list
-          @log_file_list
         end
 
         def self.highlight(log)
@@ -50,6 +32,30 @@ module Rails
             log[index][:file_size] = self.file_size(log_file).round(4)
           end
           return log
+        end
+
+        def error
+          @error
+        end
+
+        def start_date
+          if @filter_params[:date_range].present?
+            @filter_params[:date_range][:start]
+          else
+            Time.now.strftime("%Y-%m-%d")
+          end
+        end
+
+        def end_date
+          if @filter_params[:date_range].present?
+            @filter_params[:date_range][:end]
+          else
+            Time.now.strftime("%Y-%m-%d")
+          end
+        end
+
+        def file_list
+          PrettyLogger.get_log_file_list
         end
 
         def filter_logs_with_date(file)
@@ -93,11 +99,16 @@ module Rails
         end
 
         def get_date_from_log_line(line)
+          params = @filter_params[:date_range]
           if check_line_include_date(line)
             date_string_index = line.index("at ")
             string_date = line[date_string_index .. date_string_index + 13]
             date = string_date.to_date.strftime("%Y-%m-%d")
-            date.between?( @filter_params[:date_range][:start], @filter_params[:date_range][:end]  )
+            if params.present?
+              date.between?( params[:start], params[:end] )
+            else
+              date.between?( Time.now.strftime("%Y-%m-%d"), Time.now.strftime("%Y-%m-%d") )
+            end
           end
         end
 
@@ -107,25 +118,28 @@ module Rails
 
         def validate_date()
           params = @filter_params[:date_range]
-
-          if (params[:start].present? && params[:end].present?)
-            if (params[:start] > params[:end])
-              "End Date should not be less than Start Date."
+          if params.present?
+            if (params[:start].present? && params[:end].present?)
+              if (params[:start] > params[:end])
+                "End Date should not be less than Start Date."
+              end
+            elsif  params[:start].blank? || params[:end].blank?
+              "Start and End Date must be given."
             end
-          elsif  params[:start].blank? || params[:end].blank?
-            "Start and End Date must be given."
           end
         end
 
         def log_data
-
-          divider = @filter_params[:date_range][:divider] ||= 100
+          error = validate_date
+          divider = @filter_params[:date_range].blank? ? @filter_params[:date_range][:divider] : 100
           logs = get_logs_from_file(@log_file)
           logs_count =  (logs.count.to_f / divider.to_i).ceil
-          paginated_logs = logs[ @filter_params[:page].to_i * divider.to_i .. (@filter_params[:page].to_i * divider.to_i) + divider.to_i ]
+          paginated_logs = logs[ @filter_params[:page].to_i * divider.to_i ..
+          (@filter_params[:page].to_i * divider.to_i) + divider.to_i ]
           data = {}
           data[:logs_count] = logs_count
           data[:paginated_logs] = paginated_logs
+          data[:error] = error
           return data
         end
 
