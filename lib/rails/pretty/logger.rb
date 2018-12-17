@@ -131,11 +131,11 @@ module Rails
 
         def log_data
           error = validate_date
-          divider = @filter_params[:date_range].blank? ? @filter_params[:date_range][:divider] : 100
+          divider = set_divider_value
           logs = get_logs_from_file(@log_file)
-          logs_count =  (logs.count.to_f / divider.to_i).ceil
-          paginated_logs = logs[ @filter_params[:page].to_i * divider.to_i ..
-          (@filter_params[:page].to_i * divider.to_i) + divider.to_i ]
+          logs_count =  (logs.count.to_f / divider).ceil
+          paginated_logs = logs[ @filter_params[:page].to_i * divider ..
+          (@filter_params[:page].to_i * divider) + divider ]
           data = {}
           data[:logs_count] = logs_count
           data[:paginated_logs] = paginated_logs
@@ -143,6 +143,15 @@ module Rails
           return data
         end
 
+        def set_divider_value
+          if @filter_params[:date_range].blank?
+            100
+          elsif @filter_params[:date_range][:divider].blank?
+            100
+          else
+            @filter_params[:date_range][:divider].to_i
+          end
+        end
       end
     end
   end
