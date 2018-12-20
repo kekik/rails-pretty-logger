@@ -1,11 +1,12 @@
-/.bundle/
-/.yardoc
-/_yardoc/
-/coverage/
-/doc/
-/pkg/
-/spec/reports/
-/tmp/
-
-# rspec failure tracking
-.rspec_status
+.bundle/
+log/*.log
+pkg/
+spec/dummy/
+spec/dummy/db/*.sqlite3
+spec/dummy/db/*.sqlite3-journal
+spec/dummy/log/*.log
+spec/dummy/node_modules/
+spec/dummy/yarn-error.log
+spec/dummy/storage/
+spec/dummy/tmp/
+*.gem
