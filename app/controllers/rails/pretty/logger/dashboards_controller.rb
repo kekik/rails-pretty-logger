@@ -10,6 +10,7 @@ module Rails::Pretty::Logger
 
     def index
       @log_file_list = PrettyLogger.get_log_file_list
+      PrettyLogger.highlight("lorem ipsum dolor sit amet")
     end
 
   end
