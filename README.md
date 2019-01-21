@@ -3,13 +3,14 @@ Pretty Logger is a logging framework which can be checked from its page, and als
 
 ## Usage
 visit http://your-webpage/rails-pretty-logger/dashboards/ then choose your environment, which you want to check and also you can set date range for narrowing down  your logs.
-
+![](log_file.gif)
 
 #### How to use debug Highlighter
 
 ```
 PrettyLogger.highlight("lorem ipsum")
 ```
+![](highlight.gif)
 
 ## Installation
 Add this line to your application's Gemfile:

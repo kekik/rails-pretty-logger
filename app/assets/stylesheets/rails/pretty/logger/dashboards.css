@@ -2,6 +2,125 @@
   Place all the styles related to the matching controller here.
   They will automatically be included in application.css.
 */
-.highlight{
-  background-color: yellow;
+
+/*
+  Place all the styles related to the matching controller here.
+  They will automatically be included in application.css.
+*/
+
+/* colors:
+	#000000 - black
+	#ac0010 - red
+	#484848 - dark grey
+	#ffb62a - yellow
+	#dadada - grey
+	#f1f1f1 - light grey
+	#20283e - dark blue
+	#559FAF - light blue
+	#488a99 - blue
+	#ffffff - white
+*/
+body {
+	color: #000000;
+	font-family:Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+	font-size:16px;
+	padding: 0;
+	margin: 0;
+	background-color: #f1f1f1;
+}
+body div:first-child {
+	padding: 20px;
+	background: #ac0010;
+	color: #dadada;
+}
+body div:first-child > a {
+	display:inline-block;
+	text-decoration: none;
+	background-color: #ac0010;
+	color: #dadada;
+	padding: 8px;
+	margin: 3px;
+	border-radius: 5px;
+	border: #dadada 1px solid;
+}
+body div:first-child > a:hover {
+	background-color: #559FAF;
+	color: #ffffff;
+	border: #ffffff 1px solid;
+}
+a {
+	display: inline-block;
+	text-decoration: none;
+	background-color: #f1f1f1;
+	color: #484848;
+	padding: 8px 10px;
+	margin-left: 1px;
+	border-radius: 5px;
+	border: #484848 1px solid;
+}
+a:hover {
+	color:#dadada;
+	background-color:#484848;
+}
+hr {
+	margin: 8px 0;
+	border:0;
+	border-bottom: #dadada 1px solid;
+}
+.form-group {
+	background-color: #dadada;
+	padding: 5px 0;
+	margin: 15px 20px 30px 20px;
+	border-radius: 5px;
+	font-family:Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+}
+.form-group p {
+	color: #000000;
+	font-family:Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+}
+p {
+	padding: 6px 20px;
+	font-family: Consolas, "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", Monaco, "Courier New", "monospace";
+	font-size:16px;
+}
+.highlight {
+	display: inline-block;
+	background-color:#ffb62a;
+	padding: 6px 10px;
+	margin-left: 20px;
+	font-family: Consolas, "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", Monaco, "Courier New", "monospace";
+}
+input {
+	border-radius: 2px;
+	border: #484848 1px solid;
+	padding: 5px 10px;
+	margin: 3px;
+	font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+	color: #484848;
+	font-size: 14px;
+	margin-right: 20px;
+}
+input[type=submit]{
+	font-size:16px;
+	padding: 8px 10px;
+	border-radius: 3px;
+	background-color: #ac0010;
+	color: #ffffff;
+	border: none;
+}
+input[type=submit]:hover {
+	background-color: #20283e;
+	color: #dadada;
+}
+.dashboard {
+	display: block;
+	background: none!important;
+	margin-top: 100px;
+	margin-left: 20%;
+	margin-right: 20%;
+	margin-bottom: 100px;
+	text-align: center;
+}
+.dashboard a {
+	margin: 5px 10px;
 }
