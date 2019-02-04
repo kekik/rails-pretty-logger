@@ -6,7 +6,7 @@ module Rails
 
       class PrettyLogger
 
-        def initialize( params )
+        def initialize(params)
           @log_file = File.join(Rails.root, 'log', "#{params[:log_file]}.log")
           @filter_params = params
         end
@@ -59,19 +59,14 @@ module Rails
         end
 
         def filter_logs_with_date(file)
-
           arr = []
-
           start = false
 
           IO.foreach(file) do |line|
-
-            line_log_date = get_date_from_log_line(line)
-
-            if line_log_date
+            if get_date_from_log_line(line)
               start = true
               arr.push(line)
-            elsif start && !(check_line_include_date(line))
+            elsif start && !(line_include_date?(line))
               arr.push(line)
             elsif line_log_date == false
               start = false
@@ -81,9 +76,7 @@ module Rails
         end
 
         def get_test_logs(file)
-
           arr = []
-
           IO.foreach(file) do |line|
             arr.push(line)
           end
@@ -93,30 +86,30 @@ module Rails
         def get_logs_from_file(file)
           unless @filter_params[:log_file].include?("test")
             filter_logs_with_date(file)
-          else
-            get_test_logs(file)
           end
+
+          get_test_logs(file)
         end
 
         def get_date_from_log_line(line)
           params = @filter_params[:date_range]
-          if check_line_include_date(line)
+          if line_include_date?(line)
             date_string_index = line.index("at ")
             string_date = line[date_string_index .. date_string_index + 13]
             date = string_date.to_date.strftime("%Y-%m-%d")
             if params.present?
-              date.between?( params[:start], params[:end] )
+              date.between?(params[:start], params[:end])
             else
-              date.between?( Time.now.strftime("%Y-%m-%d"), Time.now.strftime("%Y-%m-%d") )
+              date.between?(Time.now.strftime("%Y-%m-%d"), Time.now.strftime("%Y-%m-%d"))
             end
           end
         end
 
-        def check_line_include_date(line)
+        def line_include_date?(line)
           line.include?("Started")
         end
 
-        def validate_date()
+        def validate_date
           params = @filter_params[:date_range]
           if params.present?
             if (params[:start].present? && params[:end].present?)

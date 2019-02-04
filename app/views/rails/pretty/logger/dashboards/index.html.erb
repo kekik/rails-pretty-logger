@@ -1,10 +1,9 @@
-
 <div>
-      Choose your log file :
+   Choose your log file :
    <% @log_file_list .each do |key, value| %>
-   <%= link_to(value[:file_name].capitalize,
-   log_file_dashboards_path(log_file: value[:file_name], date_range: { start: time_now, end: time_now }),
-   html_options = {class: "btn btn-default",
-   data: { confirm: "Log file size is #{ value[:file_size] } MB. Are you sure to open this file? " }}) %>
+     <%= link_to(value[:file_name].capitalize,
+         log_file_dashboards_path(log_file: value[:file_name], date_range: { start: time_now, end: time_now }),
+         html_options = {class: "btn btn-default",
+         data: { confirm: "Log file size is #{ value[:file_size] } MB. Are you sure to open this file? " }}) %>
    <% end %>
 </div>

@@ -4,7 +4,7 @@ module Rails::Pretty::Logger
   class DashboardsController < ApplicationController
 
     def log_file
-      @log = PrettyLogger.new( params )
+      @log = PrettyLogger.new(params)
       @log_data = @log.log_data
     end
 

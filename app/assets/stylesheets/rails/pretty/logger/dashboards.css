@@ -28,11 +28,13 @@ body {
 	margin: 0;
 	background-color: #f1f1f1;
 }
+
 body div:first-child {
 	padding: 20px;
 	background: #ac0010;
 	color: #dadada;
 }
+
 body div:first-child > a {
 	display:inline-block;
 	text-decoration: none;
@@ -43,11 +45,13 @@ body div:first-child > a {
 	border-radius: 5px;
 	border: #dadada 1px solid;
 }
+
 body div:first-child > a:hover {
 	background-color: #559FAF;
 	color: #ffffff;
 	border: #ffffff 1px solid;
 }
+
 a {
 	display: inline-block;
 	text-decoration: none;
@@ -58,15 +62,18 @@ a {
 	border-radius: 5px;
 	border: #484848 1px solid;
 }
+
 a:hover {
 	color:#dadada;
 	background-color:#484848;
 }
+
 hr {
 	margin: 8px 0;
 	border:0;
 	border-bottom: #dadada 1px solid;
 }
+
 .form-group {
 	background-color: #dadada;
 	padding: 5px 0;
@@ -74,15 +81,18 @@ hr {
 	border-radius: 5px;
 	font-family:Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
 }
+
 .form-group p {
 	color: #000000;
 	font-family:Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
 }
+
 p {
 	padding: 6px 20px;
 	font-family: Consolas, "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", Monaco, "Courier New", "monospace";
 	font-size:16px;
 }
+
 .highlight {
 	display: inline-block;
 	background-color:#ffb62a;
@@ -90,6 +100,7 @@ p {
 	margin-left: 20px;
 	font-family: Consolas, "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", Monaco, "Courier New", "monospace";
 }
+
 input {
 	border-radius: 2px;
 	border: #484848 1px solid;
@@ -100,6 +111,7 @@ input {
 	font-size: 14px;
 	margin-right: 20px;
 }
+
 input[type=submit]{
 	font-size:16px;
 	padding: 8px 10px;
@@ -108,10 +120,12 @@ input[type=submit]{
 	color: #ffffff;
 	border: none;
 }
+
 input[type=submit]:hover {
 	background-color: #20283e;
 	color: #dadada;
 }
+
 .dashboard {
 	display: block;
 	background: none!important;
@@ -121,6 +135,7 @@ input[type=submit]:hover {
 	margin-bottom: 100px;
 	text-align: center;
 }
+
 .dashboard a {
 	margin: 5px 10px;
 }
