@@ -23,6 +23,7 @@ module Rails
           File.size?("./#{log_file}").to_f / 2**20
         end
 
+
         def self.get_log_file_list
           log = {}
           log_files =  Dir["**/*.log"]
@@ -36,6 +37,10 @@ module Rails
 
         def error
           @error
+        end
+
+        def clear_logs
+          open(@log_file, File::TRUNC) {}
         end
 
         def start_date

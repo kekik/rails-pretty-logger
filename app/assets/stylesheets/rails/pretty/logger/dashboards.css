@@ -139,3 +139,20 @@ input[type=submit]:hover {
 .dashboard a {
 	margin: 5px 10px;
 }
+
+
+.clear_logs {
+  background-color: #F62817 !important ;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+}
+
+.dashboard_button{
+	  padding: 15px 32px !important ;
+		margin-left: 30px !important ;
+}
