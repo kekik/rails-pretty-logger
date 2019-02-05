@@ -20,5 +20,18 @@ module Rails::Pretty::Logger
         params[:date_range][:divider]
       end
     end
+
+    def is_file_active(name, params)
+      if params[:log_file] == name
+        "active"
+      end
+    end
+
+    def is_page_active(index, params)
+      if params[:page].to_i == index
+        "active"
+      end
+    end
+
   end
 end
