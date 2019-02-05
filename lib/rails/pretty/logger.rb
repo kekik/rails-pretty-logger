@@ -68,7 +68,7 @@ module Rails
               arr.push(line)
             elsif start && !(line_include_date?(line))
               arr.push(line)
-            elsif line_log_date == false
+            else
               start = false
             end
           end
@@ -86,9 +86,9 @@ module Rails
         def get_logs_from_file(file)
           unless @filter_params[:log_file].include?("test")
             filter_logs_with_date(file)
+          else
+            get_test_logs(file)
           end
-
-          get_test_logs(file)
         end
 
         def get_date_from_log_line(line)
