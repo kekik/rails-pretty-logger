@@ -89,10 +89,10 @@ module Rails
         end
 
         def get_logs_from_file(file)
-          unless @filter_params[:log_file].include?("test")
-            filter_logs_with_date(file)
-          else
+          if @filter_params[:log_file].include?("test")
             get_test_logs(file)
+          else
+            filter_logs_with_date(file)
           end
         end
 
