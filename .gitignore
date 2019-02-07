@@ -11,3 +11,4 @@ spec/dummy/storage/
 spec/dummy/tmp/
 *.gem
 *.log
+Gemfile.lock
