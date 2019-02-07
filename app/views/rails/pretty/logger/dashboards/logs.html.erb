@@ -39,7 +39,7 @@
       <%= f.date_field(:start, value: @log.start_date, max: Date.today) %>
       <%= label(:end, :title, "End Date:") %>
       <%= f.date_field(:end, value: @log.end_date, max: Date.today) %>
-      <%= label(:divider, :title, "Divider:") %>
+      <%= label(:divider, :title, "Logs per page:") %>
       <%= f.number_field(:divider, value: set_divider(params)) %>
       <%= f.submit "Submit" %>
     </p>
