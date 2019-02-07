@@ -15,7 +15,7 @@ PrettyLogger.highlight("lorem ipsum")
 ## Installation
 Add this line to your application's Gemfile:
 
-```ruby
+```
 gem 'rails-pretty-logger'
 ```
 
@@ -27,6 +27,11 @@ $ bundle
 Or install it yourself as:
 ```bash
 $ gem install rails-pretty-logger
+```
+Mount the engine in your config/routes.rb:
+
+```
+mount Rails::Pretty::Logger::Engine => "/rails-pretty-logger"
 ```
 
 ## Contributing

@@ -23,6 +23,7 @@ module Rails
           File.size?("./#{log_file}").to_f / 2**20
         end
 
+
         def self.get_log_file_list
           log = {}
           log_files =  Dir["**/*.log"]
@@ -36,6 +37,10 @@ module Rails
 
         def error
           @error
+        end
+
+        def clear_logs
+          open(@log_file, File::TRUNC) {}
         end
 
         def start_date
@@ -68,7 +73,7 @@ module Rails
               arr.push(line)
             elsif start && !(line_include_date?(line))
               arr.push(line)
-            elsif line_log_date == false
+            else
               start = false
             end
           end
@@ -84,11 +89,11 @@ module Rails
         end
 
         def get_logs_from_file(file)
-          unless @filter_params[:log_file].include?("test")
+          if @filter_params[:log_file].include?("test")
+            get_test_logs(file)
+          else
             filter_logs_with_date(file)
           end
-
-          get_test_logs(file)
         end
 
         def get_date_from_log_line(line)

@@ -2,8 +2,12 @@
 <html>
 <head>
   <title>Rails pretty logger</title>
-  <%= csrf_meta_tags %>
-  <%= csp_meta_tag %>
+  <% if check_rails_version %>
+    <%= csrf_meta_tags %>
+  <% else %>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+  <% end %>
 
   <%= stylesheet_link_tag    "rails/pretty/logger/application", media: "all" %>
   <%= javascript_include_tag "rails/pretty/logger/application" %>
