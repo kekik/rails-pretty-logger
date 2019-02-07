@@ -160,3 +160,7 @@ input[type=submit]:hover {
 .active{
 	background-color: #559FAF !important ;
 }
+
+.message{
+	text-align: center;
+}
