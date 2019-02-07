@@ -33,5 +33,8 @@ module Rails::Pretty::Logger
       end
     end
 
+    def check_rails_version
+      Rails::VERSION::STRING[0..2].to_f < 5.2
+    end
   end
 end

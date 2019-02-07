@@ -2,7 +2,7 @@
 <html>
 <head>
   <title>Rails pretty logger</title>
-  <% if Rails::VERSION::STRING[0..2].to_f < 5.2 %>
+  <% if check_rails_version %>
     <%= csrf_meta_tags %>
   <% else %>
     <%= csrf_meta_tags %>
