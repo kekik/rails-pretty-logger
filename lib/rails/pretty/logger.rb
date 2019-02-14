@@ -7,7 +7,7 @@ module Rails
       class PrettyLogger
 
         def initialize(params)
-          @log_file = File.join(Rails.root, 'log', "#{params[:log_file]}.log")
+          @log_file = File.join(Rails.root, 'log', params[:log_file])
           @filter_params = params
         end
 
@@ -23,13 +23,12 @@ module Rails
           File.size?("./#{log_file}").to_f / 2**20
         end
 
-
         def self.get_log_file_list
           log = {}
-          log_files =  Dir["**/*.log"]
+          log_files =  Dir["log/**.*"]
           log_files.each_with_index do |log_file,index|
             log[index] = {}
-            log[index][:file_name] =  File.basename(log_file, ".log")
+            log[index][:file_name] =  log_file[4..-1]
             log[index][:file_size] = self.file_size(log_file).round(4)
           end
           return log
