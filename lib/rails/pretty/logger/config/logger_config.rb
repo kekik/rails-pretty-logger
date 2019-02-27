@@ -9,11 +9,11 @@ module Rails
 
         class LoggerConfig < Rails::Application
 
-          logger_file     = ActiveSupport::TaggedLogging.new(ConsoleLogger.new(Rails.root.join('log/rails-pretty.log'), 10, 9024))
-          # logger_console  = ActiveSupport::TaggedLogging.new(ConsoleLogger.new(STDOUT))
+          logger_file     = ActiveSupport::TaggedLogging.new(ConsoleLogger.new('log/rails-pretty.log','hourly'))
+          logger_console  = ActiveSupport::TaggedLogging.new(ConsoleLogger.new(STDOUT))
           config.logger = logger_file
 
-          # Rails.logger.extend(ActiveSupport::Logger.broadcast(logger_console))
+          Rails.logger.extend(ActiveSupportLogger.broadcast(logger_console))
         end
 
 
