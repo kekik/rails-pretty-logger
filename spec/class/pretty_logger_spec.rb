@@ -19,7 +19,7 @@ module Rails
 
           it "has log file" do
             params = ActionController::Parameters.new(date_range: {"end" => Time.now.strftime("%Y-%m-%d"),
-              "start" => Time.now.strftime("%Y-%m-%d")}, log_file: "rspec_test")
+              "start" => Time.now.strftime("%Y-%m-%d")}, log_file: "rspec_test.log")
               subject = PrettyLogger.new(params)
               expect(subject.log_data[:error]).to be_nil
               expect(subject.log_data[:logs_count]).to eq(1)
@@ -28,7 +28,7 @@ module Rails
 
           it "does not validate without end date" do
             params = ActionController::Parameters.new(date_range: {"end" => (Time.now - 1.days).strftime("%Y-%m-%d"),
-              "start" => Time.now.strftime("%Y-%m-%d")}, log_file: "rspec_test" )
+              "start" => Time.now.strftime("%Y-%m-%d")}, log_file: "rspec_test.log" )
             subject = PrettyLogger.new( params )
             expect(subject.log_data[:error]).to eq("End Date should not be less than Start Date.")
           end

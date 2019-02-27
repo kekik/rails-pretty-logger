@@ -1,5 +1,6 @@
 .bundle/
 log/*.log
+log/**
 pkg/
 spec/dummy/
 spec/dummy/db/*.sqlite3
