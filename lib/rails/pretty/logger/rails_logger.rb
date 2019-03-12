@@ -4,9 +4,10 @@ module Rails
 
       class RailsLogger < ::Logger
 
-        def initialize(logdev, shift_age = 0, shift_size = 1048576, level: DEBUG,
+        def initialize(logdev, shift_age = 0, shift_size = 1048576, file_count: nil, level: DEBUG,
           progname: nil, formatter: nil, datetime_format: nil,
           shift_period_suffix: '%Y%m%d')
+
           self.level = level
           self.progname = progname
           @default_formatter = Formatter.new
@@ -16,8 +17,9 @@ module Rails
           if logdev
             @logdev = LoggerDevice.new(logdev, :shift_age => shift_age,
               :shift_size => shift_size,
-              :shift_period_suffix => shift_period_suffix)
+              :shift_period_suffix => shift_period_suffix, file_count: file_count )
             end
+
           end
 
           module Period
@@ -28,7 +30,7 @@ module Rails
             def next_rotate_time(now, shift_age)
               case shift_age
               when 'hourly'
-                t = Time.mktime(now.year, now.month, now.mday, now.hour ,now.min + 1)
+                t = Time.mktime(now.year, now.month, now.mday, now.hour + 1)
               when 'daily'
                 t = Time.mktime(now.year, now.month, now.mday) + SiD
               when 'weekly'
@@ -45,7 +47,7 @@ module Rails
                 t += SiD if hour > 12
 
               elsif shift_age == 'hourly'
-                t = Time.mktime(now.year, now.month, now.mday, now.hour ,now.min + 1)
+                t = Time.mktime(now.year, now.month, now.mday, now.hour + 1)
               end
               t
             end
@@ -53,7 +55,7 @@ module Rails
             def previous_period_end(now, shift_age)
               case shift_age
               when 'hourly'
-                t = Time.mktime(now.year, now.month, now.mday, now.hour ,now.min - 1)
+                t = Time.mktime(now.year, now.month, now.mday, now.hour - 1)
               when 'daily'
                 t = Time.mktime(now.year, now.month, now.mday) - SiD / 2
               when 'weekly'
@@ -77,8 +79,21 @@ module Rails
           class LoggerDevice < LogDevice
             include Period
 
-            def initialize(*args)
-              super(*args)
+            def initialize(log = nil, shift_age: nil, shift_size: nil, shift_period_suffix: nil, file_count: nil)
+              @dev = @filename = @shift_age = @shift_size = @shift_period_suffix = @file_count = nil
+              mon_initialize
+              set_dev(log)
+              if @filename
+                @shift_age = shift_age || 7
+                @shift_size = shift_size || 1048576
+                @shift_period_suffix = shift_period_suffix || '%Y%m%d'
+                @file_count = file_count || 24
+
+                unless @shift_age.is_a?(Integer)
+                  base_time = @dev.respond_to?(:stat) ? @dev.stat.mtime : Time.now
+                  @next_rotate_time = next_rotate_time(base_time, @shift_age)
+                end
+              end
             end
 
             def shift_log_period(period_end)
@@ -106,7 +121,26 @@ module Rails
                 end
               end
 
+              #delete old files
+              log_files = Dir[ File.join(Rails.root, 'log') + "/#{suffix_year}/**/*"].reject {|fn| File.directory?(fn) }
+
+              log_files_length = log_files.length
+              
+              while (log_files_length > @file_count) do
+                arr = []
+                log_files.each { |x| arr.push(File.ctime(x).to_i) }
+
+                file_index = arr.index(arr.min)
+
+                file_path = log_files[file_index]
+                File.delete(file_path) if File.exist?(file_path)
+
+                log_files = Dir[ File.join(Rails.root, 'log') + "/#{suffix_year}/**/*"].reject {|fn| File.directory?(fn) }
+                log_files_length = log_files.length
+              end
+
               @dev.close rescue nil
+
               File.rename("#{@filename}", age_file)
               old_log_path = Rails.root.join(age_file)
               new_path = File.join(Rails.root, 'log', suffix_year, suffix_month, suffix_day)
@@ -115,6 +149,8 @@ module Rails
               @dev = create_logfile(@filename)
               return true
             end
+
+
           end
 
         end
