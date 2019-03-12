@@ -26,7 +26,7 @@ module Rails
 
         describe "GET #log_file" do
           it "returns http success" do
-            get :logs, params: {log_file: "rspec_test.log",
+            get :logs, params: {log_file: File.join(Rails.root, 'log', "rspec_test.log"),
                date_range: {start: Time.now.strftime("%Y-%m-%d"),
                end: Time.now.strftime("%Y-%m-%d") }}
             expect(response).to be_successful

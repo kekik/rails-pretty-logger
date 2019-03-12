@@ -25,8 +25,7 @@ module Rails
 
         def self.get_log_file_list
           log = {}
-          log_files =  Dir["log/**.*"]
-          puts log_files
+          log_files =  Dir["#{File.join(Rails.root, 'log')}" + "/**.*"]
           log_files.each_with_index do |log_file,index|
             log[index] = {}
             log[index][:file_name] =  log_file
@@ -39,7 +38,6 @@ module Rails
           log = {}
           log_files =  Dir["log/hourly/**/*.*"]
           log_files.each_with_index do |log_file,index|
-            puts log_file
             log[index] = {}
             log[index][:file_name] =  log_file
             log[index][:file_size] = self.file_size(log_file).round(4)
