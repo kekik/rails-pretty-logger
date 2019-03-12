@@ -75,6 +75,10 @@ module Rails
           PrettyLogger.get_log_file_list
         end
 
+        def hourly_file_list
+          PrettyLogger.get_hourly_log_file_list
+        end
+
         def filter_logs_with_date(file)
           arr = []
           start = false
@@ -101,7 +105,7 @@ module Rails
         end
 
         def get_logs_from_file(file)
-          if @filter_params[:log_file].include?("test")
+          if @filter_params[:log_file].include?("test") || @filter_params[:log_file].include?("hourly")
             get_test_logs(file)
           else
             filter_logs_with_date(file)
