@@ -122,10 +122,10 @@ module Rails
               end
 
               #delete old files
-              log_files = Dir[ File.join(Rails.root, 'log') + "/#{suffix_year}/**/*"].reject {|fn| File.directory?(fn) }
+              log_files = Dir[ File.join(Rails.root, 'log', 'hourly') + "/#{suffix_year}/**/*"].reject {|fn| File.directory?(fn) }
 
               log_files_length = log_files.length
-              
+
               while (log_files_length > @file_count) do
                 arr = []
                 log_files.each { |x| arr.push(File.ctime(x).to_i) }
@@ -135,7 +135,7 @@ module Rails
                 file_path = log_files[file_index]
                 File.delete(file_path) if File.exist?(file_path)
 
-                log_files = Dir[ File.join(Rails.root, 'log') + "/#{suffix_year}/**/*"].reject {|fn| File.directory?(fn) }
+                log_files = Dir[ File.join(Rails.root, 'log', 'hourly') + "/#{suffix_year}/**/*"].reject {|fn| File.directory?(fn) }
                 log_files_length = log_files.length
               end
 
@@ -143,7 +143,7 @@ module Rails
 
               File.rename("#{@filename}", age_file)
               old_log_path = Rails.root.join(age_file)
-              new_path = File.join(Rails.root, 'log', suffix_year, suffix_month, suffix_day)
+              new_path = File.join(Rails.root, 'log', 'hourly', suffix_year, suffix_month, suffix_day)
               FileUtils.mkdir_p new_path
               FileUtils.mv old_log_path, new_path, :force => true
               @dev = create_logfile(@filename)

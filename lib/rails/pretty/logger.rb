@@ -7,7 +7,7 @@ module Rails
       class PrettyLogger
 
         def initialize(params)
-          @log_file = File.join(Rails.root, 'log', params[:log_file])
+          @log_file = params[:log_file]
           @filter_params = params
         end
 
@@ -26,9 +26,22 @@ module Rails
         def self.get_log_file_list
           log = {}
           log_files =  Dir["log/**.*"]
+          puts log_files
           log_files.each_with_index do |log_file,index|
             log[index] = {}
-            log[index][:file_name] =  log_file[4..-1]
+            log[index][:file_name] =  log_file
+            log[index][:file_size] = self.file_size(log_file).round(4)
+          end
+          return log
+        end
+
+        def self.get_hourly_log_file_list
+          log = {}
+          log_files =  Dir["log/hourly/**/*.*"]
+          log_files.each_with_index do |log_file,index|
+            puts log_file
+            log[index] = {}
+            log[index][:file_name] =  log_file
             log[index][:file_size] = self.file_size(log_file).round(4)
           end
           return log

@@ -1,0 +1,66 @@
+
+<div>
+  Log Files:
+  <% @log.file_list.each do |key, value| %>
+  <%= link_to(value[:file_name].capitalize,
+      logs_hourly_logs_path(log_file: value[:file_name], date_range: { start: time_now, end: time_now }),
+      html_options = {class: "#{is_file_active(value[:file_name], params)}",
+      data: { confirm: "Log file size is #{ value[:file_size] } MB. Are you sure to open this file? " }}) %>
+  <% end %>
+</div>
+<hr>
+
+<% if @log_data[:error].present? %>
+<p>
+  <%= @log_data[:error] %>
+</p>
+<% end %>
+
+<% if @log_data[:error].blank? %>
+  <% @log_data[:logs_count].times do |index| %>
+    <%= link_to(
+        index + 1,
+        logs_hourly_logs_path(
+          log_file: params[:log_file],
+          page: index,
+          date_range: { start: @log.start_date, end: @log.end_date, divider: set_divider(params) }
+        ),
+        html_options = {class: "#{is_page_active(index, params)}"}
+
+      ) %>
+  <% end %>
+<% end %>
+<hr>
+
+<div class="form-group">
+  <%= form_for :date_range, url: logs_hourly_logs_path(log_file: params[:log_file]), method: :post do |f| %>
+    <p>
+      <%= label(:start,   :title, "Start Date:") %>
+      <%= f.date_field(:start, value: @log.start_date, max: Date.today) %>
+      <%= label(:end, :title, "End Date:") %>
+      <%= f.date_field(:end, value: @log.end_date, max: Date.today) %>
+      <%= label(:divider, :title, "Logs per page:") %>
+      <%= f.number_field(:divider, value: set_divider(params)) %>
+      <%= f.submit "Submit" %>
+    </p>
+  <%- end%>
+
+<% if @log_data[:logs_count] > 0 %>
+<p>
+  <%= link_to("Clear logs",
+      clear_logs_hourly_logs_path(log_file: params[:log_file]),
+      html_options = {class: "clear_logs",
+      method: :post,
+      data: { confirm: "Are you sure to clear all logs? " }}) %>
+</p>
+<% end %>
+</div>
+
+
+<hr>
+
+<%  @log_data[:paginated_logs].each do |line| %>
+  <p>
+    <%= check_highlight(line) %>
+  </p>
+<% end %>
