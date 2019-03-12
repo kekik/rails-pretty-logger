@@ -10,5 +10,16 @@
 // Read Sprockets README (https://github.com/rails/sprockets#sprockets-directives) for details
 // about supported directives.
 //
+//= require rails/pretty/logger/list.min
 //= require rails-ujs
 //= require_tree .
+
+
+window.onload = function(){
+
+    var options = {
+        valueNames: [ 'name']
+    };
+
+    var userList = new List('hourly', options);
+}

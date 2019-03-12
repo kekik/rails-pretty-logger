@@ -1,23 +1,24 @@
 <% if @log_file_list.count == 0 %>
 <div>
-   <h1 class="message">There is no log file to show</h1>
+  <h1 class="message">There is no log file to show</h1>
 </div>
 
 <% else %>
-<div>
-   Choose your log file :
-   <% @log_file_list .each do |key, value| %>
-     <%= link_to(value[:file_name][4..-1].capitalize,
-         logs_dashboards_path(log_file: value[:file_name], date_range: { start: time_now, end: time_now }),
-         html_options = {class: "dashboard_button",
-         data: { confirm: "Log file size is #{ value[:file_size] } MB. Are you sure to open this file? " }}) %>
+<div class="navbar">
+  Choose your log file :
+  <% @log_file_list .each do |key, value| %>
+  <%= link_to(value[:file_name][4..-1].capitalize,
+  logs_dashboards_path(log_file: value[:file_name], date_range: { start: time_now, end: time_now }),
+  html_options = {class: "dashboard_button",
+  data: { confirm: "Log file size is #{ value[:file_size] } MB. Are you sure to open this file? " }}) %>
 
-         <%= link_to("x",
-             clear_logs_dashboards_path(log_file: value[:file_name]),
-             html_options = {class: "clear_logs",
-             method: :post,
-             data: { confirm: "Are you sure to clear all logs from #{value[:file_name].capitalize}? " }}) %>
-   <% end %>
+  <%= link_to("x",
+  clear_logs_dashboards_path(log_file: value[:file_name]),
+  html_options = {class: "clear_logs",
+  method: :post,
+  data: { confirm: "Are you sure to clear all logs from #{value[:file_name].capitalize}? " }}) %>
+  <% end %>
 
+  <%= link_to('Hourly logs Dashboard', hourly_logs_path, html_options = {class: "dashboard_button"}) %>
 </div>
 <% end %>
