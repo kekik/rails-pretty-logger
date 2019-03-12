@@ -17,9 +17,11 @@
 
 window.onload = function(){
 
-    var options = {
-        valueNames: [ 'name']
-    };
+  var options = {
+    valueNames: [ 'name'],
+    page: 12,
+    pagination: true
+  };
 
-    var userList = new List('hourly', options);
+  var userList = new List('hourly', options);
 }
