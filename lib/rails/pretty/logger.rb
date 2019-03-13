@@ -36,7 +36,7 @@ module Rails
 
         def self.get_hourly_log_file_list
           log = {}
-          log_files =  Dir["log/hourly/**/*.*"]
+          log_files =  Dir["log/hourly/**/*.*"].sort
           log_files.each_with_index do |log_file,index|
             log[index] = {}
             log[index][:file_name] =  log_file
