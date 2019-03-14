@@ -23,5 +23,5 @@ window.onload = function(){
     pagination: true
   };
 
-  var userList = new List('hourly', options);
+  var logList = new List('hourly', options);
 }

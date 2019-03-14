@@ -29,6 +29,20 @@
 	background-color: #f1f1f1;
 }
 
+.hour-list {
+	color: #000000;
+	font-family:Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+	font-size:16px;
+	padding: 0;
+	margin: 0;
+	background-color: #f1f1f1;
+}
+
+.hour-list:first-child {
+	padding: 20px;
+	background: #f1f1f1 ;
+	color: #dadada;
+}
 .navbar:first-child {
 	padding: 20px;
 	background: #ac0010;
@@ -57,10 +71,10 @@ a {
 	text-decoration: none;
 	background-color: #f1f1f1;
 	color: #484848;
-	padding: 8px 10px;
+	padding: 3px 3px;
 	margin-left: 1px;
 	border-radius: 5px;
-	border: #484848 1px solid;
+	/* border: #484848 1px solid; */
 }
 
 a:hover {
@@ -137,7 +151,7 @@ input[type=submit]:hover {
 }
 
 .dashboard a {
-	margin: 5px 10px;
+	margin: 8px 10px;
 }
 
 
@@ -155,6 +169,7 @@ input[type=submit]:hover {
 .dashboard_button{
 	  padding: 15px 32px !important ;
 		margin-left: 30px !important ;
+		position: right !important;
 }
 
 .active{
@@ -239,4 +254,8 @@ right:-5px;
 .pagination li {
   display:inline-block;
   padding:5px;
+}
+
+ul {
+  list-style-type: none;
 }

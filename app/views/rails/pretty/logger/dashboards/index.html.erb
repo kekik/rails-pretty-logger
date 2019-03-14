@@ -5,6 +5,9 @@
 
 <% else %>
 <div class="navbar">
+  <p>
+    <%= link_to('Hourly logs Dashboard', hourly_logs_path, html_options = {class: "dashboard_button"}) %>
+  </p>
   Choose your log file :
   <% @log_file_list .each do |key, value| %>
   <%= link_to(cut_name(value[:file_name]),
@@ -19,6 +22,5 @@
   data: { confirm: "Are you sure to clear all logs from #{value[:file_name].capitalize}? " }}) %>
   <% end %>
 
-  <%= link_to('Hourly logs Dashboard', hourly_logs_path, html_options = {class: "dashboard_button"}) %>
 </div>
 <% end %>

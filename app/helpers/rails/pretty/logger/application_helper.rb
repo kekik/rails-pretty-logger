@@ -9,7 +9,7 @@ module Rails
 
         def cut_name(name)
           index = name.index('/log/')
-          return name[(index + 5)..-5].capitalize
+          return name[(index + 5)..name.length].capitalize
         end
 
       end

@@ -5,17 +5,21 @@
 
 <% else %>
 
-<div class="navbar">
-   Choose your log file :
-   <br>
+<div class="hourly-list">
 
    <div id="hourly">
 
+      <div class="navbar">
+        <p>
+          <%= link_to('Main Dashboard',dashboards_path, html_options = {class: "dashboard_button"}) %>
+        </p>
+        
+
+      </div>
       <input class="search" placeholder="Search" />
       <button class="sort" data-sort="name">
          Sort
       </button>
-
       <ul class="list">
          <% @log_file_list .each do |key, value| %>
          <li>
@@ -28,7 +32,7 @@
             <% end %>
          </li>
       </ul>
- <ul class="pagination"></ul>
+      <ul class="pagination"></ul>
    </div>
 </div>
 <% end %>

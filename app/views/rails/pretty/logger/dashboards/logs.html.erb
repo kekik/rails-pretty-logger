@@ -1,5 +1,8 @@
 
 <div class="navbar">
+  <p>
+    <%= link_to('Hourly logs Dashboard', hourly_logs_path, html_options = {class: "dashboard_button"}) %>
+  </p>
   Log Files:
   <% @log.file_list.each do |key, value| %>
   <%= link_to(cut_name(value[:file_name]),
@@ -7,7 +10,6 @@
       html_options = {class: "#{is_file_active(value[:file_name], params)}",
       data: { confirm: "Log file size is #{ value[:file_size] } MB. Are you sure to open this file? " }}) %>
   <% end %>
-  <%= link_to('Hourly logs Dashboard', hourly_logs_path, html_options = {class: "dashboard_button"}) %>
 </div>
 <hr>
 
