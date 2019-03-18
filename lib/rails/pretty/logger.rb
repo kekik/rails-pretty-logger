@@ -44,7 +44,7 @@ module Rails
           end
           return log
         end
-        
+
         def clear_logs
           open(@log_file, File::TRUNC) {}
         end
@@ -63,14 +63,6 @@ module Rails
           else
             Time.now.strftime("%Y-%m-%d")
           end
-        end
-
-        def file_list
-          PrettyLogger.get_log_file_list
-        end
-
-        def hourly_file_list
-          PrettyLogger.get_hourly_log_file_list
         end
 
         def filter_logs_with_date(file)

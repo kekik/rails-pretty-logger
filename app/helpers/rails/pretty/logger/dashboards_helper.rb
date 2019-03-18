@@ -11,7 +11,7 @@ module Rails::Pretty::Logger
       Time.now.strftime("%Y-%m-%d")
     end
 
-    def check_stdout?
+    def is_stdout?
       ENV["RAILS_LOG_TO_STDOUT"].present?
     end
 

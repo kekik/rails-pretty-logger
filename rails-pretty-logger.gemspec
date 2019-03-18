@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.authors     = ["Cem", "Mehmet"]
   s.email       = ["cbaykam@gmail.com", "mehmetcelik4@gmail.com"]
   s.homepage    = "https://github.com/kekik/rails-pretty-logger"
-  s.summary     = "Pretty Logger is a logging framework which can be checked from its page,
+  s.summary     = "Pretty Logger is a logging framework which can be checked from '/your-web-page/rails-pretty-logger/dashboards',
    can also debug easily with highlight method. And can add Hourly log rotation."
   s.description = " With Pretty logger, can check your logs from web page, can also easily check your logs with hourly rotation "
   s.license     = "MIT"
