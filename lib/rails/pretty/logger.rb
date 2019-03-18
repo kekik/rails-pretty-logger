@@ -44,11 +44,7 @@ module Rails
           end
           return log
         end
-
-        def error
-          @error
-        end
-
+        
         def clear_logs
           open(@log_file, File::TRUNC) {}
         end
@@ -164,6 +160,7 @@ module Rails
             @filter_params[:date_range][:divider].to_i
           end
         end
+
       end
     end
   end

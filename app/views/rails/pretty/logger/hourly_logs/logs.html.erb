@@ -1,50 +1,58 @@
-
-<div class="navbar">
- <p>
-  <%= link_to('Main Dashboard',dashboards_path, html_options = {class: "dashboard_button"}) %>
-  <%= link_to('Hourly logs Dashboard', hourly_logs_path, html_options = {class: "dashboard_button"}) %>
-   </p>
-</div>
-<hr>
-
-<% if @log_data[:error].present? %>
-<p>
-  <%= @log_data[:error] %>
-</p>
-<% end %>
-
-<% if @log_data[:error].blank? %>
-  <% @log_data[:logs_count].times do |index| %>
-    <%= link_to(
-        index + 1,
-        logs_hourly_logs_path(
-          log_file: params[:log_file],
-          page: index,
-          date_range: { start: @log.start_date, end: @log.end_date, divider: set_divider(params) }
-        ),
-        html_options = {class: "#{is_page_active(index, params)}"}
-
-      ) %>
-  <% end %>
-<% end %>
-<hr>
-
-<% if @log_data[:logs_count] > 0 %>
-<p>
-  <%= link_to("Clear logs",
-      clear_logs_hourly_logs_path(log_file: params[:log_file]),
-      html_options = {class: "clear_logs",
-      method: :post,
-      data: { confirm: "Are you sure to clear all logs? " }}) %>
-</p>
-<% end %>
-</div>
-
-
-<hr>
-
-<%  @log_data[:paginated_logs].each do |line| %>
+<div class="logger_navbar">
   <p>
-    <%= check_highlight(line) %>
+    <%= link_to('Main Dashboard',dashboards_path, html_options = {class: "dashboard_button"}) %>
+    <%= link_to('Hourly logs Dashboard', hourly_logs_path, html_options = {class: "dashboard_button"}) %>
   </p>
+</div>
+<hr>
+<% if  @log_data[:logs_count] > 0 %>
+
+
+  <% if @log_data[:error].present? %>
+    <p>
+      <%= @log_data[:error] %>
+    </p>
+  <% end %>
+
+  <% if @log_data[:error].blank? %>
+    <% @log_data[:logs_count].times do |index| %>
+      <%= link_to(
+          index + 1,
+          logs_hourly_logs_path(
+            log_file: params[:log_file],
+            page: index,
+            date_range: { start: @log.start_date, end: @log.end_date, divider: set_divider(params) }
+          ),
+          html_options = {class: "#{is_page_active(index, params)}"}
+
+        ) %>
+    <% end %>
+  <% end %>
+  <hr>
+
+  <% if @log_data[:logs_count] > 0 %>
+    <p>
+      <%= link_to("Clear logs",
+          clear_logs_hourly_logs_path(log_file: params[:log_file]),
+          html_options = {class: "clear_logs",
+          method: :post,
+          data: { confirm: "Are you sure to clear all logs? " }}) %>
+    </p>
+  <% end %>
+  </div>
+
+
+  <hr>
+
+  <%  @log_data[:paginated_logs].each do |line| %>
+    <p>
+      <%= check_highlight(line) %>
+    </p>
+  <% end %>
+
+<% else %>
+
+  <div>
+    <h1 class="message">There is no log file to show</h1>
+  </div>
 <% end %>

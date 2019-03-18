@@ -11,6 +11,10 @@ module Rails::Pretty::Logger
       Time.now.strftime("%Y-%m-%d")
     end
 
+    def check_stdout?
+      ENV["RAILS_LOG_TO_STDOUT"].present?
+    end
+
     def set_divider(params)
       if params[:date_range].blank?
         100
