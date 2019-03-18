@@ -1,7 +1,7 @@
 require_dependency "rails/pretty/logger/application_controller"
 
 module Rails::Pretty::Logger
-  class DashboardsController < ApplicationController
+  class HourlyLogsController < ApplicationController
     before_action :set_logger, except: [:index]
 
     def logs
@@ -9,7 +9,7 @@ module Rails::Pretty::Logger
     end
 
     def index
-      @log_file_list = PrettyLogger.get_log_file_list
+      @log_file_list = PrettyLogger.get_hourly_log_file_list
     end
 
     def clear_logs
@@ -19,12 +19,13 @@ module Rails::Pretty::Logger
 
     private
 
-    def dashboard_params
+    def hourly_params
       params.permit( :log_file, :utf8, :authenticity_token, :commit, date_range: [:end, :start, :divider])
     end
 
     def set_logger
-      @log = PrettyLogger.new(dashboard_params)
+      @log = PrettyLogger.new(hourly_params)
     end
+
   end
 end

@@ -7,7 +7,7 @@ module Rails
       class PrettyLogger
 
         def initialize(params)
-          @log_file = File.join(Rails.root, 'log', "#{params[:log_file]}.log")
+          @log_file = params[:log_file]
           @filter_params = params
         end
 
@@ -23,20 +23,26 @@ module Rails
           File.size?("./#{log_file}").to_f / 2**20
         end
 
-
         def self.get_log_file_list
           log = {}
-          log_files =  Dir["**/*.log"]
+          log_files =  Dir["#{File.join(Rails.root, 'log')}" + "/**.*"]
           log_files.each_with_index do |log_file,index|
             log[index] = {}
-            log[index][:file_name] =  File.basename(log_file, ".log")
+            log[index][:file_name] =  log_file
             log[index][:file_size] = self.file_size(log_file).round(4)
           end
           return log
         end
 
-        def error
-          @error
+        def self.get_hourly_log_file_list
+          log = {}
+          log_files =  Dir["log/hourly/**/*.*"].sort
+          log_files.each_with_index do |log_file,index|
+            log[index] = {}
+            log[index][:file_name] =  log_file
+            log[index][:file_size] = self.file_size(log_file).round(4)
+          end
+          return log
         end
 
         def clear_logs
@@ -57,10 +63,6 @@ module Rails
           else
             Time.now.strftime("%Y-%m-%d")
           end
-        end
-
-        def file_list
-          PrettyLogger.get_log_file_list
         end
 
         def filter_logs_with_date(file)
@@ -89,7 +91,7 @@ module Rails
         end
 
         def get_logs_from_file(file)
-          if @filter_params[:log_file].include?("test")
+          if @filter_params[:log_file].include?("test") || @filter_params[:log_file].include?("hourly")
             get_test_logs(file)
           else
             filter_logs_with_date(file)
@@ -150,6 +152,7 @@ module Rails
             @filter_params[:date_range][:divider].to_i
           end
         end
+
       end
     end
   end

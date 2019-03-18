@@ -10,5 +10,18 @@
 // Read Sprockets README (https://github.com/rails/sprockets#sprockets-directives) for details
 // about supported directives.
 //
+//= require rails/pretty/logger/list.min
 //= require rails-ujs
 //= require_tree .
+
+
+window.onload = function(){
+
+  var options = {
+    valueNames: [ 'name'],
+    page: 12,
+    pagination: true
+  };
+
+  var logList = new List('hourly', options);
+}

@@ -7,11 +7,12 @@ require "rails/pretty/logger/version"
 Gem::Specification.new do |s|
   s.name        = "rails-pretty-logger"
   s.version     = Rails::Pretty::Logger::VERSION
-  s.authors     = ["Cem"]
-  s.email       = ["cbaykam@gmail.com"]
+  s.authors     = ["Cem", "Mehmet"]
+  s.email       = ["cbaykam@gmail.com", "mehmetcelik4@gmail.com"]
   s.homepage    = "https://github.com/kekik/rails-pretty-logger"
-  s.summary     = ": Summary of Rails::Pretty::Logger."
-  s.description = ": Description of Rails::Pretty::Logger."
+  s.summary     = "Pretty Logger is a logging framework which can be checked from '/your-web-page/rails-pretty-logger/dashboards',
+   can also debug easily with highlight method. And can add Hourly log rotation."
+  s.description = " With Pretty logger, can check your logs from web page, can also easily check your logs with hourly rotation "
   s.license     = "MIT"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
