@@ -1,39 +1,6 @@
+<%= render "partials/navbar", path_name: 'Hourly logs Dashboard' %>
 
-<div class="logger_navbar">
-  <p>
-    <%= link_to('Hourly logs Dashboard', hourly_logs_path, html_options = {class: "dashboard_button"}) %>
-  </p>
-  Log Files:
-  <% Rails::Pretty::Logger::PrettyLogger.get_log_file_list.each do |key, value| %>
-  <%= link_to(trim_name(value[:file_name]),
-      logs_dashboards_path(log_file: value[:file_name], date_range: { start: time_now, end: time_now }),
-      html_options = {class: "#{is_file_active(value[:file_name], params)}",
-      data: { confirm: "Log file size is #{ value[:file_size] } MB. Are you sure to open this file? " }}) %>
-  <% end %>
-</div>
-<hr>
-
-<% if @log_data[:error].present? %>
-<p>
-  <%= @log_data[:error] %>
-</p>
-<% end %>
-
-<% if @log_data[:error].blank? %>
-  <% @log_data[:logs_count].times do |index| %>
-    <%= link_to(
-        index + 1,
-        logs_dashboards_path(
-          log_file: params[:log_file],
-          page: index,
-          date_range: { start: @log.start_date, end: @log.end_date, divider: set_divider(params) }
-        ),
-        html_options = {class: "#{is_page_active(index, params)}"}
-
-      ) %>
-  <% end %>
-<% end %>
-<hr>
+<%= render "partials/error_pagination", log: @log, log_data: @log_data , locals: {path: "logs_dashboards_path"} %>
 
 <div class="form-group">
   <%= form_for :date_range, url: logs_dashboards_path(log_file: params[:log_file]), method: :post do |f| %>
@@ -58,7 +25,6 @@
 </p>
 <% end %>
 </div>
-
 
 <hr>
 

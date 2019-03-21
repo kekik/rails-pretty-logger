@@ -20,14 +20,15 @@
       <button class="sort" data-sort="name">
          Sort
       </button>
+
       <ul class="list">
          <% @log_file_list .each do |key, value| %>
          <li>
             <h5 class="name">
-               <%= link_to(modify_name(value[:file_name]),
-               logs_hourly_logs_path(log_file: value[:file_name], date_range: { start: time_now, end: time_now }),
+               <%= link_to(modify_name(value.fetch(:file_name)),
+               logs_hourly_logs_path(log_file: value.fetch(:file_name), date_range: { start: time_now, end: time_now }),
                html_options = {class: "dashboard_button",
-               data: { confirm: "Log file size is #{ value[:file_size] } MB. Are you sure to open this file? " }}) %>
+               data: { confirm: "Log file size is #{ value.fetch(:file_name) } MB. Are you sure to open this file? " }}) %>
             </h5>
             <% end %>
          </li>

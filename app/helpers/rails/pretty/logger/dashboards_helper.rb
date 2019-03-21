@@ -1,9 +1,7 @@
 module Rails::Pretty::Logger
   module DashboardsHelper
     def check_highlight(line)
-      if line.include?("[HIGHLIGHT]")
-        return "<div class='highlight'>#{line.delete('[HIGHLIGHT]')}</div>".html_safe
-      end
+      return "<div class='highlight'>#{line.delete('[HIGHLIGHT]')}</div>".html_safe if line.include?("[HIGHLIGHT]")
       line
     end
 
@@ -26,15 +24,11 @@ module Rails::Pretty::Logger
     end
 
     def is_file_active(name, params)
-      if params[:log_file] == name
-        "active"
-      end
+      "active" if params[:log_file] == name
     end
 
     def is_page_active(index, params)
-      if params[:page].to_i == index
-        "active"
-      end
+      "active" if params[:page].to_i == index
     end
 
     def check_rails_version
