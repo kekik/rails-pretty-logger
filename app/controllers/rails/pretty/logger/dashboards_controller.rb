@@ -20,7 +20,7 @@ module Rails::Pretty::Logger
     private
 
     def dashboard_params
-      params.permit( :log_file, :utf8, :authenticity_token, :commit, date_range: [:end, :start, :divider])
+      params.permit( :log_file, :utf8, :_method, :authenticity_token, :commit, :page, date_range: [:end, :start, :divider])
     end
 
     def set_logger
