@@ -1,7 +1,7 @@
 module Rails::Pretty::Logger
   module DashboardsHelper
     def check_highlight(line)
-      return "<div class='highlight'>#{line.delete('[HIGHLIGHT]')}</div>".html_safe if line.include?("[HIGHLIGHT]")
+      return "<div class='highlight'>#{line.remove('[HIGHLIGHT]')}</div>".html_safe if line.include?("[HIGHLIGHT]")
       line
     end
 

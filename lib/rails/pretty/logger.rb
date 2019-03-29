@@ -22,25 +22,23 @@ module Rails::Pretty::Logger
     end
 
     def self.get_log_file_list
-      log = {}
       log_files =  Dir["#{File.join(Rails.root, 'log')}" + "/**.*"]
-      log_files.each_with_index do |log_file,index|
-        log[index] = {}
-        log[index][:file_name] =  log_file
-        log[index][:file_size] = self.file_size(log_file).round(4)
-      end
-      return log
+      self.logs_atr(log_files)
     end
 
     def self.get_hourly_log_file_list
-      log = {}
       log_files =  Dir["log/hourly/**/*.*"].sort
+      self.logs_atr(log_files)
+    end
+
+    def self.logs_atr(log_files)
+      log = {}
       log_files.each_with_index do |log_file,index|
         log[index] = {}
         log[index][:file_name] =  log_file
         log[index][:file_size] = self.file_size(log_file).round(4)
       end
-      return log
+      log
     end
 
     def clear_logs
@@ -145,5 +143,4 @@ module Rails::Pretty::Logger
     end
 
   end
-  
 end

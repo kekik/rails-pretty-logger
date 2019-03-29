@@ -26,6 +26,5 @@ module Rails::Pretty::Logger
     def set_logger
       @log = PrettyLogger.new(hourly_params)
     end
-
   end
 end
