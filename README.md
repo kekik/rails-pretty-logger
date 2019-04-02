@@ -1,5 +1,5 @@
 # Rails::Pretty::Logger
-Pretty Logger is a logging framework which can be checked from its page, and also you can also debug easily with highlight method.
+Pretty Logger is a logging framework which can be checked from webpage, and also you can also debug easily with highlight method. You can also override logger class woth Pretty logger so you can keep hourly logs, which can be limited as you wish.
 
 ## Usage
 visit http://your-webpage/rails-pretty-logger/dashboards/ then choose your environment, which you want to check and also you can set date range for narrowing down  your logs.
@@ -11,6 +11,7 @@ visit http://your-webpage/rails-pretty-logger/dashboards/ then choose your envir
 PrettyLogger.highlight("lorem ipsum")
 ```
 ![](highlight.gif)
+
 
 ## Installation
 Add this line to your application's Gemfile:
@@ -33,6 +34,22 @@ Mount the engine in your config/routes.rb:
 ```
 mount Rails::Pretty::Logger::Engine => "/rails-pretty-logger"
 ```
+
+#### How to override logger
+
+Add these lines below to environment config file which you want to override its logger, first argument for name of the log file, second argument for keep hourly logs, file count for limiting the logs files.
+
+ Rails::Pretty::Logger::ConsoleLogger.new("log/rails-pretty.log", "hourly", file_count: 48)
+
+```  
+   #/config/environments/development.rb
+
+   require "rails/pretty/logger/config/logger_config"
+
+   logger_file = ActiveSupport::TaggedLogging.new(Rails::Pretty::Logger::ConsoleLogger.new("log/rails-pretty.log", "hourly", file_count: 48))
+   config.logger = logger_file
+```   
+![](hourly.gif)
 
 ## Contributing
 
