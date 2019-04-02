@@ -18,7 +18,7 @@ module Rails::Pretty::Logger
     end
 
     def self.file_size(log_file)
-      File.size?("./#{log_file}").to_f / 2**20
+      File.size?("#{log_file}").to_f / 2**20
     end
 
     def self.get_log_file_list
@@ -27,7 +27,7 @@ module Rails::Pretty::Logger
     end
 
     def self.get_hourly_log_file_list
-      log_files =  Dir["log/hourly/**/*.*"].sort
+      log_files =  Dir["#{Rails.root}/log/hourly/**/*.*"].sort
       self.logs_atr(log_files)
     end
 

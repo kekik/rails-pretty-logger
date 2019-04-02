@@ -9,7 +9,7 @@ module Rails::Pretty::Logger
     end
 
     def index
-      @log_file_list = PrettyLogger.get_hourly_log_file_list
+      @log_file_list = PrettyLogger.get_hourly_log_file_list.select{ |_,file| file[:file_size] > 0 }
     end
 
     def clear_logs
