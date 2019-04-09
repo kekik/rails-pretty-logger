@@ -11,7 +11,7 @@
 <% else %>
   <div class="logger_navbar">
     <p>
-      <%= link_to('Hourly logs Dashboard', hourly_logs_path, html_options = {class: "dashboard_button"}) %>
+      <%= link_to('Hourly logs', hourly_logs_path, html_options = {class: "dashboard_button"}) %>
     </p>
       Log Files:
       <% @log_file_list .each do |key, value| %>
