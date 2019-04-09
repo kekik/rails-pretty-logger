@@ -14,11 +14,11 @@ module Rails::Pretty::Logger
       self.formatter = formatter
       @logdev = nil
       if logdev
-        @logdev = LoggerDevice.new(logdev, :shift_age => shift_age,
+        log_name = "log/" + logdev + ".log"
+        @logdev = LoggerDevice.new(log_name, :shift_age => shift_age,
           :shift_size => shift_size,
           :shift_period_suffix => shift_period_suffix, file_count: file_count )
         end
-
       end
 
       module Period
@@ -86,8 +86,7 @@ module Rails::Pretty::Logger
             @shift_age = shift_age || 7
             @shift_size = shift_size || 1048576
             @shift_period_suffix = shift_period_suffix || '%Y%m%d'
-            @file_count = file_count || 24
-
+            @file_count = file_count || 48
             unless @shift_age.is_a?(Integer)
               base_time = @dev.respond_to?(:stat) ? @dev.stat.mtime : Time.now
               @next_rotate_time = next_rotate_time(base_time, @shift_age)

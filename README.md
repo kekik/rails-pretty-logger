@@ -12,6 +12,21 @@ PrettyLogger.highlight("lorem ipsum")
 ```
 ![](highlight.gif)
 
+#### Use Hourly Log Rotation
+
+Add these lines below to environment config file which you want to override its logger, first argument for name of the log file, second argument for keeping hourly logs, file count for limiting the logs files.
+
+Rails::Pretty::Logger::ConsoleLogger.new("rails-pretty-logger", "hourly", file_count: 48)
+
+```  
+#/config/environments/development.rb
+
+require "rails/pretty/logger/config/logger_config"
+
+logger_file = ActiveSupport::TaggedLogging.new(Rails::Pretty::Logger::ConsoleLogger.new("rails-pretty-logger", "hourly", file_count: 48))
+config.logger = logger_file
+```   
+![](hour.gif)
 
 ## Installation
 Add this line to your application's Gemfile:
@@ -35,21 +50,6 @@ Mount the engine in your config/routes.rb:
 mount Rails::Pretty::Logger::Engine => "/rails-pretty-logger"
 ```
 
-#### How to override logger
-
-Add these lines below to environment config file which you want to override its logger, first argument for name of the log file, second argument for keep hourly logs, file count for limiting the logs files.
-
- Rails::Pretty::Logger::ConsoleLogger.new("log/rails-pretty.log", "hourly", file_count: 48)
-
-```  
-   #/config/environments/development.rb
-
-   require "rails/pretty/logger/config/logger_config"
-
-   logger_file = ActiveSupport::TaggedLogging.new(Rails::Pretty::Logger::ConsoleLogger.new("log/rails-pretty.log", "hourly", file_count: 48))
-   config.logger = logger_file
-```   
-![](hourly.gif)
 
 ## Contributing
 

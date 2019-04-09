@@ -13,7 +13,7 @@
     <p>
       <%= link_to('Hourly logs Dashboard', hourly_logs_path, html_options = {class: "dashboard_button"}) %>
     </p>
-      Choose your log file :
+      Log Files:
       <% @log_file_list .each do |key, value| %>
         <%= link_to(trim_name(value.fetch(:file_name)),
         logs_dashboards_path(log_file: value.fetch(:file_name), date_range: { start: time_now, end: time_now }),
