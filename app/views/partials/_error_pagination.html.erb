@@ -1,0 +1,21 @@
+<% if log_data.fetch(:error).present? %>
+<p>
+  <%= log_data.fetch(:error) %>
+</p>
+<% end %>
+
+<% if log_data.fetch(:error).blank? %>
+  <% log_data.fetch(:logs_count).times do |index| %>
+    <%= link_to(
+        index + 1,
+        send(locals[:path],
+          log_file: params.fetch(:log_file),
+          page: index,
+          date_range: { start: log.start_date, end: log.end_date, divider: set_divider(params) }
+        ),
+        html_options = {class: "#{is_page_active(index, params)}"}
+
+      ) %>
+  <% end %>
+<% end %>
+<hr>

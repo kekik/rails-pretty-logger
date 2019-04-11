@@ -1,34 +1,13 @@
 <div class="logger_navbar">
   <p>
-    <%= link_to('Main Dashboard',dashboards_path, html_options = {class: "dashboard_button"}) %>
-    <%= link_to('Hourly logs Dashboard', hourly_logs_path, html_options = {class: "dashboard_button"}) %>
+    <%= link_to('Main Logs',dashboards_path, html_options = {class: "dashboard_button"}) %>
+    <%= link_to('Hourly Logs ', hourly_logs_path, html_options = {class: "dashboard_button"}) %>
   </p>
 </div>
 <hr>
 <% if  @log_data[:logs_count] > 0 %>
 
-
-  <% if @log_data[:error].present? %>
-    <p>
-      <%= @log_data[:error] %>
-    </p>
-  <% end %>
-
-  <% if @log_data[:error].blank? %>
-    <% @log_data[:logs_count].times do |index| %>
-      <%= link_to(
-          index + 1,
-          logs_hourly_logs_path(
-            log_file: params[:log_file],
-            page: index,
-            date_range: { start: @log.start_date, end: @log.end_date, divider: set_divider(params) }
-          ),
-          html_options = {class: "#{is_page_active(index, params)}"}
-
-        ) %>
-    <% end %>
-  <% end %>
-  <hr>
+<%= render "partials/error_pagination", log: @log, log_data: @log_data, locals: {path: "logs_hourly_logs_path"} %>
 
   <% if @log_data[:logs_count] > 0 %>
     <p>
@@ -39,7 +18,7 @@
           data: { confirm: "Are you sure to clear all logs? " }}) %>
     </p>
   <% end %>
-  </div>
+</div>
 
 
   <hr>
