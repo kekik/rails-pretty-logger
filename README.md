@@ -1,5 +1,5 @@
 # Rails::Pretty::Logger
-Pretty Logger is a logging framework which can be checked from webpage, and also you can also debug easily with highlight method. You can also override logger class woth Pretty logger so you can keep hourly logs, which can be limited as you wish.
+Pretty Logger is a logging framework which can be checked from webpage, and also you can also debug easily with highlight method. You can also override logger class with Pretty logger so you can keep hourly logs, which can be limited as you wish.
 
 ## Usage
 visit http://your-webpage/rails-pretty-logger/dashboards/ then choose your environment, which you want to check and also you can set date range for narrowing down  your logs.
