@@ -107,7 +107,6 @@ module Rails::Pretty::Logger
 
           age_file = "#{@filename}.#{suffix}"
 
-
           if FileTest.exist?(age_file)
             # try to avoid filename crash caused by Timestamp change.
             idx = 0
@@ -121,20 +120,12 @@ module Rails::Pretty::Logger
 
           #delete old files
           log_files = Dir[ File.join(Rails.root, 'log', 'hourly') + "/#{suffix_year}/**/*"].reject {|fn| File.directory?(fn) }
-
-          log_files_length = log_files.length
-
-          while (log_files_length > @file_count) do
-            arr = []
-            log_files.each { |x| arr.push(File.ctime(x).to_i) }
-
+          while (log_files.length > @file_count) do
+            arr = log_files.reduce([]){|memo, log_file| memo <<  File.ctime(log_file).to_i}
             file_index = arr.index(arr.min)
-
             file_path = log_files[file_index]
-            File.delete(file_path) if File.exist?(file_path)
-
+            delete_old_file(file_path)
             log_files = Dir[ File.join(Rails.root, 'log', 'hourly') + "/#{suffix_year}/**/*"].reject {|fn| File.directory?(fn) }
-            log_files_length = log_files.length
           end
 
           @dev.close rescue nil
@@ -146,6 +137,16 @@ module Rails::Pretty::Logger
           FileUtils.mv old_log_path, new_path, :force => true
           @dev = create_logfile(@filename)
           return true
+        end
+
+        def delete_old_file(file_path)
+          day_dir = File.dirname(file_path)
+          month_dir = File.expand_path("..",day_dir)
+          year_dir = File.expand_path("../..",day_dir)
+          File.delete(file_path) if File.exist?(file_path)
+          Dir.rmdir(day_dir) if Dir.empty?(day_dir)
+          Dir.rmdir(month_dir) if month_dir.empty?
+          Dir.rmdir(year_dir) if year_dir.empty?
         end
       end
 
