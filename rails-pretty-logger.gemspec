@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.homepage    = "https://github.com/kekik/rails-pretty-logger"
   s.summary     = "Pretty Logger is a logging framework which can be checked from '/your-web-page/rails-pretty-logger/dashboards',
    can also debug easily with highlight method. And can add Hourly log rotation."
-  s.description = " With Pretty logger, can check your logs from web page, can also easily check your logs with hourly rotation "
+  s.description = "Check and search your logs from page, hightlight it to spot easily, add hourly rotation if you wish. "
   s.license     = "MIT"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
