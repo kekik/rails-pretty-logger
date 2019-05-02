@@ -1,5 +1,7 @@
 Rails::Pretty::Logger::Engine.routes.draw do
 
+  root to: "dashboards#index"
+
   resources :dashboards, only: [:index] do
     get :logs, on: :collection
     post :logs, on: :collection
