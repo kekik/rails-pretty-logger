@@ -2,7 +2,11 @@ module Rails::Pretty::Logger
   module DashboardsHelper
     def check_highlight(line)
       return "<div class='highlight'>#{line.remove('[HIGHLIGHT]')}</div>".html_safe if line.include?("[HIGHLIGHT]")
-      line
+      if line.include?("Parameters:")
+        parse_parameters(line)
+      else
+        line
+      end
     end
 
     def time_now
@@ -34,5 +38,13 @@ module Rails::Pretty::Logger
     def check_rails_version
       Rails::VERSION::STRING[0..2].to_f < 5.2
     end
+
+    def parse_parameters(line)
+      parameters = line[line.index("Parameters:") + 12 ..line.length]
+      hash = JSON.parse parameters.gsub('=>', ':')
+      h = hash.reduce("<strong> Parameters: </strong> <br/> ") {|memo, (k,v)| memo += "<strong> #{k}: </strong> #{v}, "}
+      h.html_safe
+    end
+
   end
 end

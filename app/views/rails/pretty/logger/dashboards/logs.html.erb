@@ -29,7 +29,5 @@
 <hr>
 
 <%  @log_data[:paginated_logs].each do |line| %>
-  <p>
-    <%= check_highlight(line) %>
-  </p>
+    <%= check_highlight(line) %> <br>
 <% end %>
