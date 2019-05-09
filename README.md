@@ -28,6 +28,15 @@ config.logger = logger_file
 ```   
 ![](hour.gif)
 
+#### Split your old logs by hourly
+
+If you want split your old log files by hourly you can use this rake task below at terminal
+
+argument takes what will be new files names start with, and with the second one will take the full path of your log file which will be splitted
+
+for bash usage ```rake app:split_log["new_log_file_name","/path/to/your/log.file"]```
+for zch usage  ```noglob rake app:split_log["new_log_file_name","/path/to/your/log.file"]```
+
 ## Installation
 Add this line to your application's Gemfile:
 
