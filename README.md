@@ -35,6 +35,7 @@ If you want split your old log files by hourly you can use this rake task below 
 argument takes what will be new files names start with, and with the second one will take the full path of your log file which will be splitted
 
 for bash usage ```rake app:split_log["new_log_file_name","/path/to/your/log.file"]```
+
 for zch usage  ```noglob rake app:split_log["new_log_file_name","/path/to/your/log.file"]```
 
 ## Installation
