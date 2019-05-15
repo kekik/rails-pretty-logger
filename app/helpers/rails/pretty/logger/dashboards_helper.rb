@@ -41,9 +41,9 @@ module Rails::Pretty::Logger
 
     def parse_parameters(line)
       parameters = line[line.index("Parameters:") + 12 ..line.length]
-      hash = JSON.parse parameters.gsub('=>', ':')
-      h = hash.reduce("<strong> Parameters: </strong> <br/> ") {|memo, (k,v)| memo += "<strong> #{k}: </strong> #{v}, "}
-      h.html_safe
+      hash = JSON.parse parameters.gsub('=>', ':') rescue nil
+      h = hash.reduce("<strong> Parameters: </strong> <br/> ") {|memo, (k,v)| memo += "<strong> #{k}: </strong> #{v}, "} rescue nil
+      h.html_safe rescue nil
     end
 
   end
