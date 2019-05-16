@@ -31,3 +31,5 @@
 <%  @log_data[:paginated_logs].each do |line| %>
     <%= check_highlight(line) %> <br>
 <% end %>
+
+<%= @split[0..4].each {|x| x} rescue nil %>

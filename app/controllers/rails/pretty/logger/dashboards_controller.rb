@@ -1,4 +1,5 @@
 require_dependency "rails/pretty/logger/application_controller"
+require "rails/pretty/parse_log"
 
 module Rails::Pretty::Logger
   class DashboardsController < ApplicationController
@@ -6,6 +7,10 @@ module Rails::Pretty::Logger
 
     def logs
       @log_data = @log.log_data
+
+      unless params[:log_file].include?("log/test.log") 
+        @split = ParseLog.new(@log_data[:paginated_logs]).splitted_logs
+      end
     end
 
     def index
