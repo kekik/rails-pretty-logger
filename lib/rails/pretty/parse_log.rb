@@ -54,6 +54,7 @@ module Rails::Pretty::Logger
           new[line_index] = Array.new
           new[line_index] << line
         elsif line_include_complete?(line)
+          new[line_index] = Array.new if new[line_index].nil?
           new[line_index] << line
           start = false
         elsif start
