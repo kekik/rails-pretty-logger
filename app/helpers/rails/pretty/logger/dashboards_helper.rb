@@ -50,5 +50,12 @@ module Rails::Pretty::Logger
       end
     end
 
+    def log_status(logs)
+      status = []
+      logs.each do |log|
+        status.push(log.log_info[:code])
+      end
+      status.uniq
+    end
   end
 end

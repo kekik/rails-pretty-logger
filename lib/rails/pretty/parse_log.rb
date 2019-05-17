@@ -12,14 +12,15 @@ module Rails::Pretty::Logger
 
     class SplittedLog
       attr_accessor :log_text
+      attr_accessor :log_info
 
       def initialize(log)
         @id = log[0]
         @log_text = log[1]
-        @log_info = log_info(@log_text)
+        @log_info = log_infos(@log_text)
       end
 
-      def log_info(arr)
+      def log_infos(arr)
         info = {}
         arr.each do |line|
           if line.include?("Completed")

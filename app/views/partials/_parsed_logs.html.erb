@@ -1,0 +1,7 @@
+<div id="parsed-logs">
+<%  logs.each do |line| %>
+  <% line.log_text.each do |text| %>
+    <%= check_highlight(text)%> <br>
+  <% end %>
+<% end %>
+</div>

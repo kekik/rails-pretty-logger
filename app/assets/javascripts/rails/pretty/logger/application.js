@@ -11,6 +11,8 @@
 // about supported directives.
 //
 //= require rails/pretty/logger/list.min
+//= require rails/pretty/logger/axios.min.js
+//= require rails/pretty/logger/jquery.min.js
 //= require rails-ujs
 //= require_tree .
 
@@ -24,4 +26,24 @@ window.onload = function(){
   };
 
   var logList = new List('hourly', options);
+
+
+
+
+
+
+  function get_logs(url) {
+
+    axios.get(url)
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+
+  }
+
+
+
 }

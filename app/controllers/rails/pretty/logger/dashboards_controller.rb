@@ -7,9 +7,19 @@ module Rails::Pretty::Logger
 
     def logs
       @log_data = @log.log_data
-
-      unless params[:log_file].include?("log/test.log") 
-        @split = ParseLog.new(@log_data[:paginated_logs]).splitted_logs
+      @split = ParseLog.new(@log_data[:paginated_logs]).splitted_logs
+      unless params[:log_file].include?("log/test.log")
+        respond_to do |format|
+          if params["params"].present?
+            if params["params"]["request"] == "200"
+              format.js { render :action => "search" }
+            end
+          end
+          format.html { @log_data = @log.log_data }
+          format.json {
+            render :plain => {log_data: @split}.to_json, status: 200, content_type: 'application/json'
+          }
+        end
       end
     end
 
@@ -25,7 +35,7 @@ module Rails::Pretty::Logger
     private
 
     def dashboard_params
-      params.permit( :log_file, :utf8, :_method, :authenticity_token, :commit, :page, date_range: [:end, :start, :divider])
+      params.permit( :log_file, :utf8, :_method, :authenticity_token, :format, :commit, :page, :status, :request_type, date_range: [:end, :start, :divider])
     end
 
     def set_logger

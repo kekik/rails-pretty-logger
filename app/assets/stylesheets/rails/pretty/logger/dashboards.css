@@ -13,6 +13,17 @@ body {
 	margin: 0;
 	background-color: #f1f1f1;
 }
+select {
+	display:inline-block;
+	text-decoration: none;
+	background-color: #f1f1f1;
+	color: #515151;
+	padding: 5px 5px;
+	margin: 3px;
+	border-radius: 5px;
+	border: #515151 1px solid;
+	font-family:Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+}
 a {
 	display:inline-block;
 	text-decoration: none;
