@@ -48,7 +48,6 @@ module Rails::Pretty::Logger
         h = hash.reduce("<strong> Parameters: </strong> <br/> ") {|memo, (k,v)| memo += "<strong> #{k}: </strong> #{v}, "} rescue nil
         h.html_safe rescue nil
       end
-
     end
 
   end
