@@ -1,7 +1,7 @@
 module Rails
   module Pretty
     module Logger
-      VERSION = '0.2.5.1'
+      VERSION = '0.2.6'
     end
   end
 end
