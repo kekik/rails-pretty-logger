@@ -1,32 +1,58 @@
-# Rails::Pretty::Logger
-Pretty Logger is a logging framework which helps for checking  logs from page, with PrettyLogger.highlight method you can easily spot what you seek.If you want to perform hourly log rotation  Override logger class with Pretty logger, with file_count parameter kept files can be limited as you wish.
+# Rails::PrettyLogger
+
+PrettyLogger is a mountable Rails engine that helps checking logs
+from a Ruby on Rails application easier. It supports highlighting a
+string of your choosing to easily spot what you seek. It is also possible
+to perform hourly log rotation.
+
+## Installation
+
+Add this line to your application's Gemfile:
+
+```ruby
+gem 'rails-pretty_logger'
+```
+
+And then execute:
+
+    $ bundle install
+
+Or install it yourself as:
+
+    $ gem install rails-pretty_logger
 
 ## Usage
-visit http://your-webpage/rails-pretty-logger/dashboards/ then choose your log file, search with date range.
-![](log_file.gif)
+
+Mount `Rails::PrettyLogger::Engine` to the path of your choosing inside `config/routes.rb` of your application.
+```
+  # For example, to make the dashboard accessible at
+  # the path `/rails/pretty_logger/dashboards
+  mount Rails::PrettyLogger::Engine => '/rails/pretty_logger'
+```
+
+visit http://your-webpage/rails-pretty_logger/dashboards/ then choose your log file, search with date range.
+![](assets/log-file.gif)
 
 #### How to use debug Highlighter
 
 ```
 PrettyLogger.highlight("lorem ipsum")
 ```
-![](highlight.gif)
+![](assets/highlight.gif)
 
 #### Use Hourly Log Rotation
 
 Add these lines below to environment config file which you want to override its logger, first argument for name of the log file, second argument for keeping hourly logs, file count for limiting the logs files.
 
-Rails::Pretty::Logger::ConsoleLogger.new("rails-pretty-logger", "hourly", file_count: 48)
+Rails::PrettyLogger::ConsoleLogger.new("rails-pretty-logger", "hourly", file_count: 48)
 
-```  
+```
 #/config/environments/development.rb
 
-require "rails/pretty/logger/config/logger_config"
-
-logger_file = ActiveSupport::TaggedLogging.new(Rails::Pretty::Logger::ConsoleLogger.new("rails-pretty-logger", "hourly", file_count: 48))
+logger_file = ActiveSupport::TaggedLogging.new(Rails::PrettyLogger::ConsoleLogger.new("rails-pretty-logger", "hourly", file_count: 48))
 config.logger = logger_file
-```   
-![](hour.gif)
+```
+![](assets/hour.gif)
 
 #### Split your old logs by hourly
 
@@ -36,43 +62,21 @@ argument takes what will be new files names start with, and with the second one 
 
 for bash usage ```rake app:split_log["new_log_file_name","/path/to/your/log.file"]```
 
-for zch usage  ```noglob rake app:split_log["new_log_file_name","/path/to/your/log.file"]```
+for zsh usage  ```noglob rake app:split_log["new_log_file_name","/path/to/your/log.file"]```
 
-## Installation
-Add this line to your application's Gemfile:
-
-```
-gem 'rails-pretty-logger'
-```
-
-And then execute:
-```bash
-$ bundle
-```
-
-Or install it yourself as:
-```bash
-$ gem install rails-pretty-logger
-```
-Mount the engine in your config/routes.rb:
-
-```
-mount Rails::Pretty::Logger::Engine => "/rails-pretty-logger"
-```
+## Development
+After checking out the repo, run `bundler install` to install dependencies. Then, run `rake spec` to run the tests.
+You can start the PrettyLogger alongside the dummy application for development with `rails server`.
+You can also read [Rails Engines](https://guides.rubyonrails.org/engines.html) if you are not familiar to better understand the gem.
 
 ## Contributing
 
-1. [Fork][fork] the [official repository][repo].
-2. [Create a topic branch.][branch]
-3. Implement your feature or bug fix.
-4. Add, commit, and push your changes.
-5. [Submit a pull request.][pr]
+Bug reports and pull requests are welcome on GitHub at https://github.com/kekik/rails-pretty_logger. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/kekik/rails-pretty_logger/blob/master/CODE_OF_CONDUCT.md).
 
 ## License
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
+The gem is available as open source under the terms of the [MIT License](https://github.com/kekik/rails-pretty_logger/blob/master/LICENSE.txt).
 
-[repo]: https://github.com/kekik/rails-pretty-logger/tree/master
-[fork]: https://help.github.com/articles/fork-a-repo/
-[branch]: https://help.github.com/articles/creating-and-deleting-branches-within-your-repository/
-[pr]: https://help.github.com/articles/using-pull-requests/
+## Code of Conduct
+
+Everyone interacting in the Rails::PrettyLogger project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/kekik/rails-pretty_logger/blob/master/CODE_OF_CONDUCT.md).

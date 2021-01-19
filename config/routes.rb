@@ -1,6 +1,7 @@
-Rails::Pretty::Logger::Engine.routes.draw do
+# frozen_string_literal: true
 
-  root to: "dashboards#index"
+Rails::PrettyLogger::Engine.routes.draw do
+  root to: 'dashboards#index'
 
   resources :dashboards, only: [:index] do
     get :logs, on: :collection

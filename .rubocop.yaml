@@ -1,0 +1,46 @@
+inherit_from: .rubocop_todo.yml
+
+require:
+  - rubocop-packaging
+  - rubocop-performance
+  - rubocop-rails
+  - rubocop-rake
+  - rubocop-rspec
+  - rubocop-thread_safety
+
+inherit_mode:
+  merge:
+    - Exclude
+    - IgnoredMethods
+
+AllCops:
+  Exclude:
+    - './spec/spec_helper.rb'
+  DefaultFormatter: simple
+  ExtraDetails: true
+  NewCops: enable
+
+Metrics/BlockLength:
+  Description: 'Avoid long blocks with many lines.'
+  IgnoredMethods:
+    - describe
+
+Style/TrailingCommaInArguments:
+  Description: 'Checks for trailing comma in argument lists.'
+  EnforcedStyleForMultiline: comma
+
+Style/TrailingCommaInHashLiteral:
+  Description: 'Checks for trailing comma in hash literals.'
+  EnforcedStyleForMultiline: comma
+
+Layout/MultilineMethodCallIndentation:
+  Description: >-
+                 Checks indentation of method calls with the dot operator
+                 that span more than one line.
+  EnforcedStyle: indented
+
+Rails/FilePath:
+  EnforcedStyle: arguments
+
+Layout/LineLength:
+  Max: 80
