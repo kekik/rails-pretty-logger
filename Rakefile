@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
-task default: %i[spec rubocop]
+task default: %i[test lint]
+
+task test: %i[spec]
+task lint: %i[rubocop]
 
 require 'bundler/gem_tasks'
 
@@ -20,7 +23,6 @@ RSpec::Core::RakeTask.new(:spec) do |t|
 end
 
 desc 'alias for the "spec" task'
-task test: %i[spec]
 
 require 'rubocop/rake_task'
 RuboCop::RakeTask.new(:rubocop) do |t|
