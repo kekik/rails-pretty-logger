@@ -13,7 +13,7 @@
           page: index,
           date_range: { start: log.start_date, end: log.end_date, divider: set_divider(params) }
         ),
-        html_options = {class: "#{is_page_active(index, params)}"}
+        html_options = {class: "#{page_active?(index, params)}"}
 
       ) %>
   <% end %>
