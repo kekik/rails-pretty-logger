@@ -44,12 +44,12 @@ PrettyLogger.highlight("lorem ipsum")
 
 Add these lines below to environment config file which you want to override its logger, first argument for name of the log file, second argument for keeping hourly logs, file count for limiting the logs files.
 
-Rails::PrettyLogger::ConsoleLogger.new("rails-pretty-logger", "hourly", file_count: 48)
+Rails::PrettyLogger::ConsoleLogger.new("rails-pretty_logger", "hourly", file_count: 48)
 
 ```
 #/config/environments/development.rb
 
-logger_file = ActiveSupport::TaggedLogging.new(Rails::PrettyLogger::ConsoleLogger.new("rails-pretty-logger", "hourly", file_count: 48))
+logger_file = ActiveSupport::TaggedLogging.new(Rails::PrettyLogger::ConsoleLogger.new("rails-pretty_logger", "hourly", file_count: 48))
 config.logger = logger_file
 ```
 ![](assets/hour.gif)
