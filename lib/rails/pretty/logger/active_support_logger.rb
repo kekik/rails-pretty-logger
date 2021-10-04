@@ -5,7 +5,11 @@ module Rails::Pretty::Logger
 
   class ActiveSupportLogger < RailsLogger
     include ActiveSupport::LoggerThreadSafeLevel
-    include LoggerSilence
+    if Rails::VERSION::MAJOR < 6.0
+      include LoggerSilence
+    else
+      include ActiveSupport::LoggerSilence
+    end 
 
     # Returns true if the logger destination matches one of the sources
     #
