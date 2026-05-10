@@ -2,48 +2,73 @@
 
 Pretty Logger is a Rails engine for checking application logs from a mounted dashboard. It supports Rails 7.1+ and Rails 8, highlighted log entries, clearing log files, and optional hourly log rotation.
 
+## Compatibility
+
+| Gem version | Ruby | Rails | Notes |
+| --- | --- | --- | --- |
+| `0.3.x` | `>= 3.1` | `>= 7.1`, `< 9.0` | Current line. CI runs Rails 7.1, 7.2, and 8.0 with Ruby 3.3. |
+| `0.2.8` | `>= 2.2.2` | `>= 5.0`, `<= 6.1.4.1` | Legacy line for older Rails apps. Pin this version if you still need Rails 5 or Rails 6.1 support. |
+
 ## Usage
-visit http://your-webpage/rails-pretty-logger/dashboards/ then choose your log file, search with date range.
+
+Visit `http://your-webpage/rails-pretty-logger/dashboards/`, choose a log file, and filter entries by date range. The dashboard can also clear selected log files.
+
 ![](log_file.gif)
 
-#### How to use debug Highlighter
+#### How to use debug highlighter
 
+```ruby
+Rails::Pretty::Logger::PrettyLogger.highlight("lorem ipsum")
 ```
-PrettyLogger.highlight("lorem ipsum")
-```
+
 ![](highlight.gif)
 
 #### Use Hourly Log Rotation
 
-Add these lines below to environment config file which you want to override its logger, first argument for name of the log file, second argument for keeping hourly logs, file count for limiting the logs files.
+Add these lines to the environment config where you want to override the Rails logger. The first argument is the log file name, the second argument enables hourly rotation, and `file_count` limits how many hourly files are kept.
 
 Rails::Pretty::Logger::ConsoleLogger.new("rails-pretty-logger", "hourly", file_count: 48)
 
-```  
-#/config/environments/development.rb
+```ruby
+# config/environments/development.rb
 
 require "rails/pretty/logger/config/logger_config"
 
 logger_file = ActiveSupport::TaggedLogging.new(Rails::Pretty::Logger::ConsoleLogger.new("rails-pretty-logger", "hourly", file_count: 48))
 config.logger = logger_file
-```   
+```
+
 ![](hour.gif)
 
 #### Split your old logs by hourly
 
-If you want split your old log files by hourly you can use this rake task below at terminal
+If you want to split old log files into hourly files, use the rake task below.
 
-argument takes what will be new files names start with, and with the second one will take the full path of your log file which will be splitted
+The first argument is the new file prefix and the second argument is the full path of the log file to split.
 
-for bash usage ```rake app:split_log["new_log_file_name","/path/to/your/log.file"]```
+For bash:
 
-for zch usage  ```noglob rake app:split_log["new_log_file_name","/path/to/your/log.file"]```
+```bash
+bin/rails 'split_log[new_log_file_name,/path/to/your/log.file]'
+```
+
+For zsh:
+
+```zsh
+noglob bin/rails split_log[new_log_file_name,/path/to/your/log.file]
+```
 
 ## Installation
 Add this line to your application's Gemfile:
 
 ```
 gem "rails-pretty-logger"
+```
+
+For Rails 5 or Rails 6.1 applications, pin the legacy version:
+
+```ruby
+gem "rails-pretty-logger", "0.2.8"
 ```
 
 And then execute:

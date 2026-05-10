@@ -1,4 +1,5 @@
 require "test_helper"
+require "stringio"
 
 module Rails
   module Pretty
@@ -57,6 +58,19 @@ module Rails
           PrettyLogger.new(ActionController::Parameters.new(log_file: @log_file.to_s)).clear_logs
 
           assert_empty File.read(@log_file)
+        end
+
+        test "highlight writes a tagged log entry" do
+          original_logger = Rails.logger
+          output = StringIO.new
+          Rails.logger = ActiveSupport::TaggedLogging.new(ActiveSupport::Logger.new(output))
+
+          PrettyLogger.highlight("readme marker")
+
+          assert_includes output.string, "HIGHLIGHT"
+          assert_includes output.string, "readme marker"
+        ensure
+          Rails.logger = original_logger
         end
       end
     end
