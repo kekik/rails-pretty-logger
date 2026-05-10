@@ -97,6 +97,10 @@ module Rails::Pretty::Logger
       raise FileTooLarge if File.size(log_file) > max_file_size.to_i
     end
 
+    def self.tail_lines
+      Rails::Pretty::Logger.configuration.tail_lines.to_i.positive? ? Rails::Pretty::Logger.configuration.tail_lines.to_i : 500
+    end
+
     def clear_logs
       File.open(@log_file, File::TRUNC) {}
     end
@@ -202,6 +206,17 @@ module Rails::Pretty::Logger
       return data
     end
 
+    def tail_log_data
+      self.class.ensure_file_size_within_limit!(@log_file)
+
+      lines = tail_lines(@log_file, self.class.tail_lines)
+      {
+        logs_count: lines.any? ? 1 : 0,
+        paginated_logs: lines,
+        error: nil
+      }
+    end
+
     def set_divider_value
       if @filter_params[:date_range].blank?
         100
@@ -219,6 +234,15 @@ module Rails::Pretty::Logger
 
     def hourly_log?(file)
       file.include?("#{File::SEPARATOR}hourly#{File::SEPARATOR}")
+    end
+
+    def tail_lines(file, count)
+      buffer = []
+      IO.foreach(file) do |line|
+        buffer << line
+        buffer.shift if buffer.length > count
+      end
+      buffer
     end
 
   end

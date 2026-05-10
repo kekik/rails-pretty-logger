@@ -7,7 +7,17 @@
 <hr>
 <% if  @log_data[:logs_count] > 0 %>
 
+<% unless rails_pretty_logger_tail_mode? %>
 <%= render "partials/error_pagination", log: @log, log_data: @log_data, locals: {path: "logs_hourly_logs_path"} %>
+<% end %>
+
+  <p>
+    <% if rails_pretty_logger_tail_mode? %>
+      <%= link_to("Filtered view", logs_hourly_logs_path(log_file: params[:log_file], date_range: { start: @log.start_date, end: @log.end_date, divider: set_divider(params) })) %>
+    <% else %>
+      <%= link_to("Tail last #{Rails::Pretty::Logger::PrettyLogger.tail_lines} lines", logs_hourly_logs_path(log_file: params[:log_file], mode: "tail")) %>
+    <% end %>
+  </p>
 
   <% if @log_data[:logs_count] > 0 && !rails_pretty_logger_read_only? %>
     <p>

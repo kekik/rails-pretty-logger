@@ -1,8 +1,18 @@
 <%= render "partials/pretyyloggernavbar", path_name: 'Hourly logs' %>
 
-<%= render "partials/error_pagination", log: @log, log_data: @log_data , locals: {path: "logs_dashboards_path"} %>
+<% unless rails_pretty_logger_tail_mode? %>
+  <%= render "partials/error_pagination", log: @log, log_data: @log_data , locals: {path: "logs_dashboards_path"} %>
+<% end %>
 
 <div class="form-group">
+  <p>
+    <% if rails_pretty_logger_tail_mode? %>
+      <%= link_to("Filtered view", logs_dashboards_path(log_file: params[:log_file], date_range: { start: @log.start_date, end: @log.end_date, divider: set_divider(params) })) %>
+    <% else %>
+      <%= link_to("Tail last #{Rails::Pretty::Logger::PrettyLogger.tail_lines} lines", logs_dashboards_path(log_file: params[:log_file], mode: "tail")) %>
+    <% end %>
+  </p>
+
   <%= form_for :date_range, url: logs_dashboards_path(log_file: params[:log_file]), method: :post do |f| %>
     <p>
       <%= label(:start,   :title, "Start Date:") %>

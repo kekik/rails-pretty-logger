@@ -48,6 +48,20 @@ class DashboardTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Completed 200 OK"
   end
 
+  test "renders selected log file in tail mode" do
+    Rails::Pretty::Logger.configure { |config| config.tail_lines = 1 }
+
+    get "/rails-pretty-logger/dashboards/logs", params: {
+      log_file: @log_file.to_s,
+      mode: "tail"
+    }
+
+    assert_response :success
+    assert_includes response.body, "Completed 200 OK"
+    assert_not_includes response.body, "Started GET"
+    assert_includes response.body, "Filtered view"
+  end
+
   test "clears selected log file" do
     post "/rails-pretty-logger/dashboards/clear_logs", params: {
       log_file: @log_file.to_s

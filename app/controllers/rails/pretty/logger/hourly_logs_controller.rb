@@ -8,7 +8,7 @@ module Rails::Pretty::Logger
     before_action :ensure_writable_rails_pretty_logger, only: [:clear_logs]
 
     def logs
-      @log_data = @log.log_data
+      @log_data = tail_mode? ? @log.tail_log_data : @log.log_data
     end
 
     def index
@@ -48,11 +48,15 @@ module Rails::Pretty::Logger
     end
 
     def hourly_params
-      params.permit( :log_file, :utf8, :_method, :authenticity_token, :commit, :page, date_range: [:end, :start, :divider])
+      params.permit( :log_file, :mode, :utf8, :_method, :authenticity_token, :commit, :page, date_range: [:end, :start, :divider])
     end
 
     def set_logger
       @log = PrettyLogger.new(hourly_params)
+    end
+
+    def tail_mode?
+      hourly_params[:mode] == "tail"
     end
   end
 end

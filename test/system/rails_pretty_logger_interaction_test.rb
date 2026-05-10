@@ -46,6 +46,25 @@ class RailsPrettyLoggerInteractionTest < ApplicationSystemTestCase
     assert_no_text "TODAY ENTRY"
   end
 
+  test "opens tail view for a log file" do
+    File.open(@log_file, "w") do |file|
+      520.times { |index| file.puts "TAIL SYSTEM ENTRY #{index}" }
+    end
+
+    visit "/rails-pretty-logger"
+
+    accept_confirm do
+      click_link "System.log"
+    end
+
+    click_link "Tail last 500 lines"
+
+    assert_text "TAIL SYSTEM ENTRY 519"
+    assert_no_text "TAIL SYSTEM ENTRY 0"
+    click_link "Filtered view"
+    assert_selector "input[name='date_range[start]']", visible: false
+  end
+
   test "clear logs form requires confirmation" do
     visit "/rails-pretty-logger"
 

@@ -9,4 +9,7 @@ Rails::Pretty::Logger.configure do |config|
 
   # Set to nil to allow any log file size.
   config.max_file_size = 50.megabytes
+
+  # Number of lines shown by the tail view.
+  config.tail_lines = 500
 end

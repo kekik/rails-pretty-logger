@@ -13,5 +13,9 @@ module Rails::Pretty::Logger
       Rails::Pretty::Logger.configuration.read_only?
     end
 
+    def rails_pretty_logger_tail_mode?
+      params[:mode] == "tail"
+    end
+
   end
 end

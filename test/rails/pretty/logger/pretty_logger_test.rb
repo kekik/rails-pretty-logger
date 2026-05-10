@@ -67,6 +67,28 @@ module Rails
           FileUtils.rm_f(large_log) if large_log
         end
 
+        test "returns only the configured tail lines" do
+          tail_log = Rails.root.join("log", "tail_production.log")
+          File.open(tail_log, "w") do |file|
+            10.times { |index| file.puts "TAIL ENTRY #{index}" }
+          end
+          Rails::Pretty::Logger.configure { |config| config.tail_lines = 3 }
+          logger = PrettyLogger.new(ActionController::Parameters.new(log_file: tail_log.to_s))
+
+          data = logger.tail_log_data
+
+          assert_equal 1, data[:logs_count]
+          assert_equal ["TAIL ENTRY 7\n", "TAIL ENTRY 8\n", "TAIL ENTRY 9\n"], data[:paginated_logs]
+        ensure
+          FileUtils.rm_f(tail_log) if tail_log
+        end
+
+        test "uses a safe default when tail lines is invalid" do
+          Rails::Pretty::Logger.configure { |config| config.tail_lines = 0 }
+
+          assert_equal 500, PrettyLogger.tail_lines
+        end
+
         test "validates date ranges" do
           logger = PrettyLogger.new(
             ActionController::Parameters.new(

@@ -9,6 +9,7 @@ module Rails
 
           assert_nil configuration.authenticate_with
           assert_nil configuration.max_file_size
+          assert_equal 500, configuration.tail_lines
           assert_not configuration.read_only?
         end
 
@@ -19,11 +20,13 @@ module Rails
             config.authenticate_with = auth_hook
             config.read_only = true
             config.max_file_size = 1024
+            config.tail_lines = 200
           end
 
           assert_same auth_hook, Rails::Pretty::Logger.configuration.authenticate_with
           assert Rails::Pretty::Logger.configuration.read_only?
           assert_equal 1024, Rails::Pretty::Logger.configuration.max_file_size
+          assert_equal 200, Rails::Pretty::Logger.configuration.tail_lines
         end
       end
     end
