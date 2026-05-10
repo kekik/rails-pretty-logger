@@ -23,6 +23,7 @@ module Rails::Pretty::Logger
     class InvalidLogFile < StandardError; end
     class FileTooLarge < StandardError; end
     SEVERITIES = %w[DEBUG INFO WARN ERROR FATAL UNKNOWN].freeze
+    LINE_INDEX_CACHE_LIMIT = 32
     TAIL_READ_CHUNK_SIZE = 64 * 1024
     STRUCTURED_TIMESTAMP_KEYS = %w[@timestamp timestamp time datetime created_at].freeze
     STRUCTURED_SEVERITY_KEYS = %w[severity level log_level].freeze
@@ -121,8 +122,61 @@ module Rails::Pretty::Logger
       metadata.is_a?(Hash) ? metadata : {}
     end
 
+    def self.fetch_line_index_cache(cache_key, signature)
+      entry_key = [cache_key, signature]
+
+      line_index_cache_mutex.synchronize do
+        if line_index_cache.key?(entry_key)
+          line_index_cache_order.delete(entry_key)
+          line_index_cache_order << entry_key
+          return line_index_cache.fetch(entry_key)
+        end
+      end
+
+      offsets = yield.freeze
+
+      line_index_cache_mutex.synchronize do
+        line_index_cache[entry_key] = offsets
+        line_index_cache_order.delete(entry_key)
+        line_index_cache_order << entry_key
+
+        while line_index_cache_order.length > LINE_INDEX_CACHE_LIMIT
+          line_index_cache.delete(line_index_cache_order.shift)
+        end
+      end
+
+      offsets
+    end
+
+    def self.clear_line_index_cache!
+      line_index_cache_mutex.synchronize do
+        line_index_cache.clear
+        line_index_cache_order.clear
+      end
+    end
+
+    def self.clear_line_index_cache_for!(log_file)
+      line_index_cache_mutex.synchronize do
+        line_index_cache.delete_if { |(cache_key, _signature), _offsets| cache_key.first == log_file }
+        line_index_cache_order.delete_if { |cache_key, _signature| cache_key.first == log_file }
+      end
+    end
+
+    def self.line_index_cache
+      @line_index_cache ||= {}
+    end
+
+    def self.line_index_cache_order
+      @line_index_cache_order ||= []
+    end
+
+    def self.line_index_cache_mutex
+      @line_index_cache_mutex ||= Mutex.new
+    end
+
     def clear_logs
       File.open(@log_file, File::TRUNC) {}
+      self.class.clear_line_index_cache_for!(@log_file)
     end
 
     def start_date
@@ -140,14 +194,20 @@ module Rails::Pretty::Logger
     def each_filtered_log_line(file)
       return enum_for(:each_filtered_log_line, file) unless block_given?
 
+      each_filtered_log_line_with_offset(file) { |line, _offset| yield line }
+    end
+
+    def each_filtered_log_line_with_offset(file)
+      return enum_for(:each_filtered_log_line_with_offset, file) unless block_given?
+
       start = false
 
-      IO.foreach(file) do |line|
+      each_raw_log_line_with_offset(file) do |line, offset|
         if get_date_from_log_line(line)
           start = true
-          yield line
+          yield line, offset
         elsif start && !(line_include_date?(line))
-          yield line
+          yield line, offset
         else
           start = false
         end
@@ -165,10 +225,28 @@ module Rails::Pretty::Logger
     def each_log_line(file)
       return enum_for(:each_log_line, file) unless block_given?
 
+      each_log_line_with_offset(file) { |line, _offset| yield line }
+    end
+
+    def each_log_line_with_offset(file)
+      return enum_for(:each_log_line_with_offset, file) unless block_given?
+
       if test_log?(file) || hourly_log?(file)
-        IO.foreach(file) { |line| yield line }
+        each_raw_log_line_with_offset(file) { |line, offset| yield line, offset }
       else
-        each_filtered_log_line(file) { |line| yield line }
+        each_filtered_log_line_with_offset(file) { |line, offset| yield line, offset }
+      end
+    end
+
+    def each_raw_log_line_with_offset(file)
+      return enum_for(:each_raw_log_line_with_offset, file) unless block_given?
+
+      File.open(file, "r") do |io|
+        until io.eof?
+          offset = io.pos
+          line = io.gets
+          yield line, offset if line
+        end
       end
     end
 
@@ -206,22 +284,16 @@ module Rails::Pretty::Logger
       divider = set_divider_value
       return grouped_log_data(error, divider) if request_grouping?
 
-      line_count = 0
-      paginated_logs = []
       page_start = @filter_params[:page].to_i * divider
       page_end = page_start + divider
 
       self.class.ensure_file_size_within_limit!(@log_file)
 
-      each_log_line(@log_file) do |line|
-        next unless line_matches_filters?(line)
-
-        paginated_logs << line if line_count >= page_start && line_count < page_end
-        line_count += 1
-      end
+      line_offsets = cached_log_line_offsets
+      paginated_logs = read_log_lines_at_offsets(@log_file, line_offsets[page_start...page_end] || [])
 
       data = {}
-      data[:logs_count] = (line_count.to_f / divider).ceil
+      data[:logs_count] = (line_offsets.length.to_f / divider).ceil
       data[:paginated_logs] = paginated_logs
       data[:error] = error
       return data
@@ -297,6 +369,56 @@ module Rails::Pretty::Logger
 
     def request_grouping?
       @filter_params[:group].to_s == "request"
+    end
+
+    def cached_log_line_offsets
+      self.class.fetch_line_index_cache(log_line_index_cache_key, log_file_signature) do
+        build_log_line_offsets
+      end
+    end
+
+    def build_log_line_offsets
+      offsets = []
+
+      each_log_line_with_offset(@log_file) do |line, offset|
+        offsets << offset if line_matches_filters?(line)
+      end
+
+      offsets
+    end
+
+    def read_log_lines_at_offsets(file, offsets)
+      File.open(file, "r") do |io|
+        offsets.map do |offset|
+          io.seek(offset)
+          io.gets
+        end.compact
+      end
+    end
+
+    def log_line_index_cache_key
+      [
+        @log_file,
+        date_filtered_log? ? start_date : nil,
+        date_filtered_log? ? end_date : nil,
+        @filter_params[:query].to_s.strip.downcase,
+        normalized_severity_filter,
+        Rails::Pretty::Logger.configuration.log_line_parser&.object_id
+      ]
+    end
+
+    def log_file_signature
+      stat = File.stat(@log_file)
+      [stat.size, stat.mtime.to_f, stat.ctime.to_f]
+    end
+
+    def date_filtered_log?
+      !test_log?(@log_file) && !hourly_log?(@log_file)
+    end
+
+    def normalized_severity_filter
+      severity = @filter_params[:severity].to_s.upcase
+      SEVERITIES.include?(severity) ? severity : nil
     end
 
     def grouped_log_data(error, divider)

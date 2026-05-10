@@ -272,6 +272,63 @@ module Rails
           FileUtils.rm_f(large_log) if large_log
         end
 
+        test "reuses cached line offsets for repeated large log pagination" do
+          large_log = Rails.root.join("log", "cached_large_production.log")
+          File.open(large_log, "w") do |file|
+            60.times do |index|
+              file.puts %(Started GET "/cached/#{index}" for 127.0.0.1 at #{Date.current.strftime("%Y-%m-%d")} 11:17:00 +0300)
+            end
+          end
+          params = {
+            log_file: large_log.to_s,
+            page: "0",
+            date_range: {
+              start: Date.current.to_s,
+              end: Date.current.to_s,
+              divider: "10"
+            }
+          }
+
+          PrettyLogger.new(ActionController::Parameters.new(params)).log_data
+          logger = PrettyLogger.new(ActionController::Parameters.new(params.merge(page: "1")))
+          logger.define_singleton_method(:build_log_line_offsets) do
+            flunk "log_data should reuse cached offsets instead of scanning the file again"
+          end
+
+          data = logger.log_data
+
+          assert_equal 6, data[:logs_count]
+          assert_equal 10, data[:paginated_logs].count
+          assert_includes data[:paginated_logs].first, "/cached/10"
+        ensure
+          FileUtils.rm_f(large_log) if large_log
+        end
+
+        test "invalidates cached line offsets when log file changes" do
+          large_log = Rails.root.join("log", "changing_large_production.log")
+          File.write(large_log, %(Started GET "/before" for 127.0.0.1 at #{Date.current.strftime("%Y-%m-%d")} 11:17:00 +0300\n))
+          params = ActionController::Parameters.new(
+            log_file: large_log.to_s,
+            date_range: {
+              start: Date.current.to_s,
+              end: Date.current.to_s,
+              divider: "10"
+            }
+          )
+
+          PrettyLogger.new(params).log_data
+          File.open(large_log, "a") do |file|
+            file.puts %(Started GET "/after" for 127.0.0.1 at #{Date.current.strftime("%Y-%m-%d")} 11:18:00 +0300)
+          end
+
+          data = PrettyLogger.new(params).log_data
+
+          assert_equal 1, data[:logs_count]
+          assert_includes data[:paginated_logs].join, "/after"
+        ensure
+          FileUtils.rm_f(large_log) if large_log
+        end
+
         test "returns only the configured tail lines" do
           tail_log = Rails.root.join("log", "tail_production.log")
           File.open(tail_log, "w") do |file|
