@@ -48,7 +48,7 @@ module Rails::Pretty::Logger
     end
 
     def hourly_params
-      params.permit( :log_file, :mode, :query, :severity, :utf8, :_method, :authenticity_token, :commit, :page, date_range: [:end, :start, :divider])
+      params.permit( :log_file, :mode, :group, :query, :severity, :utf8, :_method, :authenticity_token, :commit, :page, date_range: [:end, :start, :divider])
     end
 
     def set_logger

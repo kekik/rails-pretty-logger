@@ -67,6 +67,52 @@ class DashboardTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, "ERROR profile failed"
   end
 
+  test "renders request grouped selected log file" do
+    File.write(@log_file, <<~LOG)
+      Started GET "/grouped" for 127.0.0.1 at #{Date.current.strftime("%Y-%m-%d")} 11:17:00 +0300
+      Processing by GroupedController#index as HTML
+      Completed 200 OK in 12ms
+    LOG
+
+    get "/rails-pretty-logger/dashboards/logs", params: {
+      log_file: @log_file.to_s,
+      group: "request",
+      date_range: {
+        start: Date.current.to_s,
+        end: Date.current.to_s
+      }
+    }
+
+    assert_response :success
+    assert_includes response.body, "log-request"
+    assert_includes response.body, "GET"
+    assert_includes response.body, "/grouped"
+    assert_includes response.body, "Completed 200 OK"
+    assert_includes response.body, "Plain lines"
+  end
+
+  test "renders structured json log entries" do
+    File.write(@log_file, <<~LOG)
+      {"timestamp":"#{Date.current.iso8601}T10:01:00Z","level":"ERROR","message":"payment failed","request_id":"abc-123"}
+    LOG
+
+    get "/rails-pretty-logger/dashboards/logs", params: {
+      log_file: @log_file.to_s,
+      query: "payment",
+      severity: "ERROR",
+      date_range: {
+        start: Date.current.to_s,
+        end: Date.current.to_s
+      }
+    }
+
+    assert_response :success
+    assert_includes response.body, "structured-log"
+    assert_includes response.body, "payment failed"
+    assert_includes response.body, "request_id"
+    assert_includes response.body, "abc-123"
+  end
+
   test "preserves log filters in pagination links" do
     File.write(@log_file, "ERROR payment failed\nERROR payment failed again\n")
 

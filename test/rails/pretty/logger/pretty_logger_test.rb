@@ -54,6 +54,35 @@ module Rails
           assert_equal ["ERROR payment failed\n"], data[:paginated_logs]
         end
 
+        test "filters structured json log data by date content and severity" do
+          structured_log = Rails.root.join("log", "structured_production.log")
+          File.write(structured_log, <<~LOG)
+            {"timestamp":"#{Date.yesterday.iso8601}T10:00:00Z","level":"ERROR","message":"payment from yesterday failed"}
+            {"timestamp":"#{Date.current.iso8601}T10:00:00Z","level":"INFO","message":"payment accepted"}
+            {"timestamp":"#{Date.current.iso8601}T10:01:00Z","level":"ERROR","message":"payment failed","request_id":"abc-123"}
+          LOG
+          logger = PrettyLogger.new(
+            ActionController::Parameters.new(
+              log_file: structured_log.to_s,
+              query: "payment",
+              severity: "ERROR",
+              date_range: {
+                start: Date.current.to_s,
+                end: Date.current.to_s
+              }
+            )
+          )
+
+          data = logger.log_data
+
+          assert_equal 1, data[:logs_count]
+          assert_equal 1, data[:paginated_logs].count
+          assert_includes data[:paginated_logs].first, "payment failed"
+          assert_includes data[:paginated_logs].first, "abc-123"
+        ensure
+          FileUtils.rm_f(structured_log) if structured_log
+        end
+
         test "ignores unknown severity filters" do
           File.write(@log_file, "ERROR unknown severity should still render\n")
           logger = PrettyLogger.new(
@@ -64,6 +93,69 @@ module Rails
           )
 
           assert_equal ["ERROR unknown severity should still render\n"], logger.log_data[:paginated_logs]
+        end
+
+        test "groups rails request logs when request grouping is enabled" do
+          File.write(@log_file, <<~LOG)
+            Started GET "/first" for 127.0.0.1 at #{Date.current.strftime("%Y-%m-%d")} 11:17:00 +0300
+            Processing by HomeController#index as HTML
+            Completed 200 OK in 12ms
+            Started POST "/second" for 127.0.0.1 at #{Date.current.strftime("%Y-%m-%d")} 11:18:00 +0300
+            ERROR payment failed
+            Completed 500 Internal Server Error in 25ms
+          LOG
+          logger = PrettyLogger.new(
+            ActionController::Parameters.new(
+              log_file: @log_file.to_s,
+              group: "request",
+              date_range: {
+                start: Date.current.to_s,
+                end: Date.current.to_s,
+                divider: "1"
+              }
+            )
+          )
+
+          data = logger.log_data
+          group = data[:paginated_logs].first
+
+          assert_equal 2, data[:logs_count]
+          assert_equal :request, group[:type]
+          assert_equal "GET", group[:method]
+          assert_equal "/first", group[:path]
+          assert_equal "200", group[:status]
+          assert_equal "12ms", group[:duration]
+          assert_includes group[:lines].join, "Processing by HomeController"
+        end
+
+        test "filters request groups by matching lines inside the group" do
+          File.write(@log_file, <<~LOG)
+            Started GET "/first" for 127.0.0.1 at #{Date.current.strftime("%Y-%m-%d")} 11:17:00 +0300
+            INFO payment accepted
+            Completed 200 OK in 12ms
+            Started POST "/second" for 127.0.0.1 at #{Date.current.strftime("%Y-%m-%d")} 11:18:00 +0300
+            ERROR payment failed
+            Completed 500 Internal Server Error in 25ms
+          LOG
+          logger = PrettyLogger.new(
+            ActionController::Parameters.new(
+              log_file: @log_file.to_s,
+              group: "request",
+              query: "payment",
+              severity: "ERROR",
+              date_range: {
+                start: Date.current.to_s,
+                end: Date.current.to_s,
+                divider: "10"
+              }
+            )
+          )
+
+          data = logger.log_data
+
+          assert_equal 1, data[:logs_count]
+          assert_equal "/second", data[:paginated_logs].first[:path]
+          assert_includes data[:paginated_logs].first[:lines].join, "ERROR payment failed"
         end
 
         test "paginates large log files without materializing the full log array" do

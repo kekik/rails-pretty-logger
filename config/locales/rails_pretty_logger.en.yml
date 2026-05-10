@@ -1,0 +1,6 @@
+en:
+  rails_pretty_logger:
+    logs:
+      group_requests: "Group requests"
+      plain_lines: "Plain lines"
+      ungrouped_lines: "Ungrouped lines"

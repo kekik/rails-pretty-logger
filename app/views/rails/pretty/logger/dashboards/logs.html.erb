@@ -4,20 +4,26 @@
   <%= render "partials/error_pagination", log: @log, log_data: @log_data , locals: {path: "logs_dashboards_path"} %>
 <% end %>
 
-<div class="form-group">
-	  <p>
-	    <% if rails_pretty_logger_tail_mode? %>
-	      <%= link_to("Filtered view", logs_dashboards_path(rails_pretty_logger_log_filter_params(include_mode: false).merge(date_range: { start: @log.start_date, end: @log.end_date, divider: set_divider(params) }))) %>
-	    <% else %>
-	      <%= link_to("Tail last #{Rails::Pretty::Logger::PrettyLogger.tail_lines} lines", logs_dashboards_path(rails_pretty_logger_log_filter_params.merge(mode: "tail"))) %>
-	    <% end %>
-	  </p>
+<div class="form-group log-controls">
+  <div class="log-toolbar">
+    <% if rails_pretty_logger_tail_mode? %>
+      <%= link_to("Filtered view", logs_dashboards_path(rails_pretty_logger_log_filter_params(include_mode: false).merge(date_range: { start: @log.start_date, end: @log.end_date, divider: set_divider(params) }))) %>
+    <% else %>
+      <%= link_to("Tail last #{Rails::Pretty::Logger::PrettyLogger.tail_lines} lines", logs_dashboards_path(rails_pretty_logger_log_filter_params.merge(mode: "tail"))) %>
+      <% if rails_pretty_logger_request_grouping? %>
+        <%= link_to(t("rails_pretty_logger.logs.plain_lines"), logs_dashboards_path(rails_pretty_logger_log_filter_params(include_group: false).merge(date_range: { start: @log.start_date, end: @log.end_date, divider: set_divider(params) }))) %>
+      <% else %>
+        <%= link_to(t("rails_pretty_logger.logs.group_requests"), logs_dashboards_path(rails_pretty_logger_log_filter_params.merge(group: "request", date_range: { start: @log.start_date, end: @log.end_date, divider: set_divider(params) }))) %>
+      <% end %>
+    <% end %>
+  </div>
 
   <%= render "partials/log_filters", path: "logs_dashboards_path" %>
 
   <%= form_for :date_range, url: logs_dashboards_path(log_file: params[:log_file]), method: :post do |f| %>
     <%= hidden_field_tag :query, params[:query] if params[:query].present? %>
     <%= hidden_field_tag :severity, params[:severity] if params[:severity].present? %>
+    <%= hidden_field_tag :group, params[:group] if params[:group].present? %>
     <p>
       <%= label(:start,   :title, "Start Date:") %>
       <%= f.date_field(:start, value: @log.start_date, max: Date.today) %>
@@ -43,6 +49,4 @@
 
 <hr>
 
-<%  @log_data[:paginated_logs].each do |line| %>
-    <%= check_highlight(line) %> <br>
-<% end %>
+<%= render "partials/log_entries", log_data: @log_data %>

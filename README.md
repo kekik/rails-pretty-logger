@@ -1,6 +1,6 @@
 # Rails::Pretty::Logger
 
-Pretty Logger is a Rails engine for checking application logs from a mounted dashboard. It supports Ruby 3.3+, Rails 7.1+, and Rails 8, with highlighted log entries, clearing log files, and optional hourly log rotation.
+Pretty Logger is a Rails engine for checking application logs from a mounted dashboard. It supports Ruby 3.3+, Rails 7.1+, and Rails 8, with highlighted log entries, request grouping, JSON line log rendering, clearing log files, and optional hourly log rotation.
 
 ## Compatibility
 
@@ -11,7 +11,7 @@ Pretty Logger is a Rails engine for checking application logs from a mounted das
 
 ## Usage
 
-Visit `http://your-webpage/rails-pretty-logger/dashboards/`, choose a log file, and filter entries by date range, content search, or severity. The dashboard can also clear selected log files.
+Visit `http://your-webpage/rails-pretty-logger/dashboards/`, choose a log file, and filter entries by date range, content search, or severity. The dashboard can group standard Rails request logs and render JSON line logs with common fields such as `timestamp`, `level`, `severity`, `message`, and custom metadata. It can also clear selected log files.
 
 ![](log_file.gif)
 

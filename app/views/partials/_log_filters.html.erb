@@ -1,6 +1,7 @@
 <%= form_with url: send(path), method: :get, scope: nil, class: "log_filters" do |form| %>
   <%= form.hidden_field :log_file, value: params[:log_file] %>
   <%= form.hidden_field :mode, value: params[:mode] if rails_pretty_logger_tail_mode? %>
+  <%= form.hidden_field :group, value: params[:group] if rails_pretty_logger_request_grouping? %>
 
   <%= form.label :query, "Search" %>
   <%= form.search_field :query, value: params[:query], placeholder: "Search log content" %>

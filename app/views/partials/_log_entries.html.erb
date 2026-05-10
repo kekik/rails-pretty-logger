@@ -1,0 +1,5 @@
+<div class="log-entries">
+  <% log_data.fetch(:paginated_logs).each do |entry| %>
+    <%= rails_pretty_logger_log_entry(entry) %>
+  <% end %>
+</div>

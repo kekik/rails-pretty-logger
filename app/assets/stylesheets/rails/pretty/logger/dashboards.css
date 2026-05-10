@@ -194,3 +194,163 @@ input[type=submit]:hover {
 .highlight {
 	background-color:#ffb62a;
 }
+
+.log-controls {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.log-toolbar,
+.log_filters {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.log_filters label {
+	color: #515151;
+	font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+	font-size: 14px;
+}
+
+.log_filters select {
+	border: none;
+	border-radius: 2px;
+	color: #5E5E5E;
+	font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+	font-size: 14px;
+	margin: 3px 20px 3px 3px;
+	padding: 8px 10px;
+}
+
+.log-entries {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin: 16px 0 32px;
+}
+
+.log-line,
+.structured-log,
+.log-request {
+	background: #ffffff;
+	border: 1px solid #d8d8d8;
+	border-radius: 6px;
+	color: #222222;
+	font-family: Consolas, "Andale Mono", "Lucida Console", Monaco, "Courier New", monospace;
+	font-size: 14px;
+	line-height: 1.45;
+	overflow-wrap: anywhere;
+}
+
+.log-line {
+	padding: 8px 10px;
+	white-space: pre-wrap;
+}
+
+.log-line--parameters {
+	background: #fbfbfb;
+}
+
+.structured-log {
+	border-left: 4px solid #437085;
+	padding: 10px 12px;
+}
+
+.structured-log--error,
+.structured-log--fatal {
+	border-left-color: #ac0010;
+}
+
+.structured-log--warn {
+	border-left-color: #a46b00;
+}
+
+.structured-log__header {
+	align-items: baseline;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.structured-log__severity,
+.log-request__status {
+	background: #515151;
+	border-radius: 4px;
+	color: #ffffff;
+	font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+	font-size: 12px;
+	font-weight: 700;
+	padding: 2px 6px;
+}
+
+.structured-log__timestamp,
+.log-request__duration {
+	color: #666666;
+	font-size: 12px;
+}
+
+.structured-log__message {
+	color: #222222;
+}
+
+.structured-log__metadata {
+	display: grid;
+	grid-template-columns: max-content minmax(0, 1fr);
+	margin: 8px 0 0;
+	row-gap: 4px;
+}
+
+.structured-log__metadata dt {
+	color: #515151;
+	font-weight: 700;
+	padding-right: 12px;
+}
+
+.structured-log__metadata dd {
+	margin: 0;
+	overflow-wrap: anywhere;
+}
+
+.log-request {
+	overflow: hidden;
+}
+
+.log-request--error {
+	border-left: 4px solid #ac0010;
+}
+
+.log-request__summary {
+	align-items: center;
+	background: #ffffff;
+	cursor: pointer;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	padding: 10px 12px;
+}
+
+.log-request__method {
+	background: #437085;
+	border-radius: 4px;
+	color: #ffffff;
+	font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+	font-size: 12px;
+	font-weight: 700;
+	padding: 2px 6px;
+}
+
+.log-request__path {
+	font-weight: 700;
+}
+
+.log-request__body {
+	background: #fbfbfb;
+	border-top: 1px solid #e5e5e5;
+	margin: 0;
+	overflow-x: auto;
+	padding: 10px 12px;
+	white-space: pre-wrap;
+}

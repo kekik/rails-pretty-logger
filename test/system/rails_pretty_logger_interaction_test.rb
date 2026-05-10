@@ -65,6 +65,33 @@ class RailsPrettyLoggerInteractionTest < ApplicationSystemTestCase
     assert_selector "input[name='date_range[start]']", visible: false
   end
 
+  test "groups request logs in the browser" do
+    File.write(@log_file, <<~LOG)
+      Started GET "/grouped" for 127.0.0.1 at #{Date.current.strftime("%Y-%m-%d")} 11:17:00 +0300
+      Processing by GroupedController#index as HTML
+      Completed 200 OK in 12ms
+      Started POST "/grouped" for 127.0.0.1 at #{Date.current.strftime("%Y-%m-%d")} 11:18:00 +0300
+      ERROR grouped failure
+      Completed 500 Internal Server Error in 25ms
+    LOG
+
+    visit "/rails-pretty-logger"
+
+    accept_confirm do
+      click_link "System.log"
+    end
+
+    click_link "Group requests"
+
+    assert_selector ".log-request", count: 2
+    assert_text "GET"
+    assert_text "/grouped"
+    assert_text "Completed 500 Internal Server Error"
+    click_link "Plain lines"
+    assert_no_selector ".log-request"
+    assert_text "ERROR grouped failure"
+  end
+
   test "filters log content and severity in the browser" do
     File.write(@log_file, <<~LOG)
       Started GET "/payments" for 127.0.0.1 at #{Date.current.strftime("%Y-%m-%d")} 11:17:00 +0300
