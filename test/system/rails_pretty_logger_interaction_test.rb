@@ -65,6 +65,35 @@ class RailsPrettyLoggerInteractionTest < ApplicationSystemTestCase
     assert_selector "input[name='date_range[start]']", visible: false
   end
 
+  test "filters log content and severity in the browser" do
+    File.write(@log_file, <<~LOG)
+      Started GET "/payments" for 127.0.0.1 at #{Date.current.strftime("%Y-%m-%d")} 11:17:00 +0300
+      INFO payment accepted
+      ERROR payment failed
+      ERROR profile failed
+    LOG
+
+    visit "/rails-pretty-logger"
+
+    accept_confirm do
+      click_link "System.log"
+    end
+
+    fill_in "Search", with: "payment"
+    select "ERROR", from: "Severity"
+    click_button "Filter"
+
+    assert_text "ERROR payment failed"
+    assert_no_text "INFO payment accepted"
+    assert_no_text "ERROR profile failed"
+
+    click_link "Tail last 500 lines"
+
+    assert_text "ERROR payment failed"
+    assert_no_text "INFO payment accepted"
+    assert_no_text "ERROR profile failed"
+  end
+
   test "clear logs form requires confirmation" do
     visit "/rails-pretty-logger"
 

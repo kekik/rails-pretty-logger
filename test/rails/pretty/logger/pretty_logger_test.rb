@@ -33,6 +33,38 @@ module Rails
           assert_includes data[:paginated_logs].first, Date.current.to_s
         end
 
+        test "filters log data by content query and severity" do
+          File.write(@log_file, <<~LOG)
+            INFO normal request
+            WARN payment warning
+            ERROR payment failed
+          LOG
+          logger = PrettyLogger.new(
+            ActionController::Parameters.new(
+              log_file: @log_file.to_s,
+              query: "payment",
+              severity: "ERROR"
+            )
+          )
+
+          data = logger.log_data
+
+          assert_equal 1, data[:logs_count]
+          assert_equal ["ERROR payment failed\n"], data[:paginated_logs]
+        end
+
+        test "ignores unknown severity filters" do
+          File.write(@log_file, "ERROR unknown severity should still render\n")
+          logger = PrettyLogger.new(
+            ActionController::Parameters.new(
+              log_file: @log_file.to_s,
+              severity: "NOPE"
+            )
+          )
+
+          assert_equal ["ERROR unknown severity should still render\n"], logger.log_data[:paginated_logs]
+        end
+
         test "paginates large log files without materializing the full log array" do
           large_log = Rails.root.join("log", "large_production.log")
           File.open(large_log, "w") do |file|
@@ -79,6 +111,29 @@ module Rails
 
           assert_equal 1, data[:logs_count]
           assert_equal ["TAIL ENTRY 7\n", "TAIL ENTRY 8\n", "TAIL ENTRY 9\n"], data[:paginated_logs]
+        ensure
+          FileUtils.rm_f(tail_log) if tail_log
+        end
+
+        test "filters tail log data by content query and severity" do
+          tail_log = Rails.root.join("log", "tail_filter_production.log")
+          File.write(tail_log, <<~LOG)
+            INFO payment succeeded
+            ERROR payment failed
+            ERROR other failure
+          LOG
+          logger = PrettyLogger.new(
+            ActionController::Parameters.new(
+              log_file: tail_log.to_s,
+              query: "payment",
+              severity: "ERROR"
+            )
+          )
+
+          data = logger.tail_log_data
+
+          assert_equal 1, data[:logs_count]
+          assert_equal ["ERROR payment failed\n"], data[:paginated_logs]
         ensure
           FileUtils.rm_f(tail_log) if tail_log
         end

@@ -21,6 +21,7 @@ module Rails::Pretty::Logger
   class PrettyLogger
     class InvalidLogFile < StandardError; end
     class FileTooLarge < StandardError; end
+    SEVERITIES = %w[DEBUG INFO WARN ERROR FATAL UNKNOWN].freeze
 
     attr_reader :log_file
 
@@ -195,6 +196,8 @@ module Rails::Pretty::Logger
       self.class.ensure_file_size_within_limit!(@log_file)
 
       each_log_line(@log_file) do |line|
+        next unless line_matches_filters?(line)
+
         paginated_logs << line if line_count >= page_start && line_count < page_end
         line_count += 1
       end
@@ -209,7 +212,7 @@ module Rails::Pretty::Logger
     def tail_log_data
       self.class.ensure_file_size_within_limit!(@log_file)
 
-      lines = tail_lines(@log_file, self.class.tail_lines)
+      lines = tail_lines(@log_file, self.class.tail_lines).select { |line| line_matches_filters?(line) }
       {
         logs_count: lines.any? ? 1 : 0,
         paginated_logs: lines,
@@ -234,6 +237,16 @@ module Rails::Pretty::Logger
 
     def hourly_log?(file)
       file.include?("#{File::SEPARATOR}hourly#{File::SEPARATOR}")
+    end
+
+    def line_matches_filters?(line)
+      query = @filter_params[:query].to_s.strip
+      return false if query.present? && !line.downcase.include?(query.downcase)
+
+      severity = @filter_params[:severity].to_s.upcase
+      return true unless SEVERITIES.include?(severity)
+
+      line.match?(/\b#{Regexp.escape(severity)}\b/i)
     end
 
     def tail_lines(file, count)

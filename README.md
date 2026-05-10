@@ -11,7 +11,7 @@ Pretty Logger is a Rails engine for checking application logs from a mounted das
 
 ## Usage
 
-Visit `http://your-webpage/rails-pretty-logger/dashboards/`, choose a log file, and filter entries by date range. The dashboard can also clear selected log files.
+Visit `http://your-webpage/rails-pretty-logger/dashboards/`, choose a log file, and filter entries by date range, content search, or severity. The dashboard can also clear selected log files.
 
 ![](log_file.gif)
 

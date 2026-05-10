@@ -48,6 +48,42 @@ class DashboardTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Completed 200 OK"
   end
 
+  test "filters selected log file by content query and severity" do
+    File.write(@log_file, <<~LOG)
+      INFO payment accepted
+      ERROR payment failed
+      ERROR profile failed
+    LOG
+
+    get "/rails-pretty-logger/dashboards/logs", params: {
+      log_file: @log_file.to_s,
+      query: "payment",
+      severity: "ERROR"
+    }
+
+    assert_response :success
+    assert_includes response.body, "ERROR payment failed"
+    assert_not_includes response.body, "INFO payment accepted"
+    assert_not_includes response.body, "ERROR profile failed"
+  end
+
+  test "preserves log filters in pagination links" do
+    File.write(@log_file, "ERROR payment failed\nERROR payment failed again\n")
+
+    get "/rails-pretty-logger/dashboards/logs", params: {
+      log_file: @log_file.to_s,
+      query: "payment",
+      severity: "ERROR",
+      date_range: {
+        divider: "1"
+      }
+    }
+
+    assert_response :success
+    assert_includes response.body, "query=payment"
+    assert_includes response.body, "severity=ERROR"
+  end
+
   test "renders selected log file in tail mode" do
     Rails::Pretty::Logger.configure { |config| config.tail_lines = 1 }
 

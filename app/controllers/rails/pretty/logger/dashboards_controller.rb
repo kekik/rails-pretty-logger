@@ -21,7 +21,7 @@ require_dependency "rails/pretty/logger/application_controller"
     private
 
     def dashboard_params
-      params.permit( :log_file, :mode, :utf8, :_method, :authenticity_token, :commit, :page, date_range: [:end, :start, :divider])
+      params.permit( :log_file, :mode, :query, :severity, :utf8, :_method, :authenticity_token, :commit, :page, date_range: [:end, :start, :divider])
     end
 
     def set_logger

@@ -1,0 +1,13 @@
+<%= form_with url: send(path), method: :get, scope: nil, class: "log_filters" do |form| %>
+  <%= form.hidden_field :log_file, value: params[:log_file] %>
+  <%= form.hidden_field :mode, value: params[:mode] if rails_pretty_logger_tail_mode? %>
+
+  <%= form.label :query, "Search" %>
+  <%= form.search_field :query, value: params[:query], placeholder: "Search log content" %>
+
+  <%= form.label :severity, "Severity" %>
+  <%= form.select :severity, rails_pretty_logger_severity_options, selected: params[:severity] %>
+
+  <%= form.submit "Filter" %>
+  <%= link_to("Clear filters", send(path, rails_pretty_logger_log_base_params)) %>
+<% end %>

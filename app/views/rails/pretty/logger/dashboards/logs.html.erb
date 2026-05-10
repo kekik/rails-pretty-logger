@@ -5,15 +5,19 @@
 <% end %>
 
 <div class="form-group">
-  <p>
-    <% if rails_pretty_logger_tail_mode? %>
-      <%= link_to("Filtered view", logs_dashboards_path(log_file: params[:log_file], date_range: { start: @log.start_date, end: @log.end_date, divider: set_divider(params) })) %>
-    <% else %>
-      <%= link_to("Tail last #{Rails::Pretty::Logger::PrettyLogger.tail_lines} lines", logs_dashboards_path(log_file: params[:log_file], mode: "tail")) %>
-    <% end %>
-  </p>
+	  <p>
+	    <% if rails_pretty_logger_tail_mode? %>
+	      <%= link_to("Filtered view", logs_dashboards_path(rails_pretty_logger_log_filter_params(include_mode: false).merge(date_range: { start: @log.start_date, end: @log.end_date, divider: set_divider(params) }))) %>
+	    <% else %>
+	      <%= link_to("Tail last #{Rails::Pretty::Logger::PrettyLogger.tail_lines} lines", logs_dashboards_path(rails_pretty_logger_log_filter_params.merge(mode: "tail"))) %>
+	    <% end %>
+	  </p>
+
+  <%= render "partials/log_filters", path: "logs_dashboards_path" %>
 
   <%= form_for :date_range, url: logs_dashboards_path(log_file: params[:log_file]), method: :post do |f| %>
+    <%= hidden_field_tag :query, params[:query] if params[:query].present? %>
+    <%= hidden_field_tag :severity, params[:severity] if params[:severity].present? %>
     <p>
       <%= label(:start,   :title, "Start Date:") %>
       <%= f.date_field(:start, value: @log.start_date, max: Date.today) %>
