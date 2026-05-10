@@ -60,6 +60,33 @@ module Rails
           assert_empty File.read(@log_file)
         end
 
+        test "rejects log files outside the Rails log directory" do
+          outside_log = Rails.root.join("tmp", "pretty_logger_outside.log")
+          FileUtils.mkdir_p(outside_log.dirname)
+          File.write(outside_log, DummyLog.entry)
+
+          assert_raises PrettyLogger::InvalidLogFile do
+            PrettyLogger.new(ActionController::Parameters.new(log_file: outside_log.to_s))
+          end
+        ensure
+          FileUtils.rm_f(outside_log) if outside_log
+        end
+
+        test "uses default divider when divider is not positive" do
+          logger = PrettyLogger.new(
+            ActionController::Parameters.new(
+              log_file: @log_file.to_s,
+              date_range: {
+                start: Date.current.to_s,
+                end: Date.current.to_s,
+                divider: "0"
+              }
+            )
+          )
+
+          assert_equal 1, logger.log_data[:logs_count]
+        end
+
         test "highlight writes a tagged log entry" do
           original_logger = Rails.logger
           output = StringIO.new

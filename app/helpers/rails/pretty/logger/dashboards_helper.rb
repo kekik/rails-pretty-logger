@@ -1,7 +1,8 @@
 module Rails::Pretty::Logger
   module DashboardsHelper
     def check_highlight(line)
-      return "<div class='highlight'>#{line.remove('[HIGHLIGHT]')}</div>".html_safe if line.include?("[HIGHLIGHT]")
+      return tag.div(line.remove("[HIGHLIGHT]"), class: "highlight") if line.include?("[HIGHLIGHT]")
+
       if line.include?("Parameters:")
         parse_parameters(line)
       else
@@ -36,14 +37,17 @@ module Rails::Pretty::Logger
     end
 
     def parse_parameters(line)
-      parameters = line[line.index("Parameters:") + 12 ..line.length]
-      hash = JSON.parse parameters.gsub('=>', ':') rescue nil
-      if hash.nil?
-        line
-      else
-        h = hash.reduce("<strong> Parameters: </strong> <br/> ") {|memo, (k,v)| memo += "<strong> #{k}: </strong> #{v}, "} rescue nil
-        h.html_safe rescue nil
+      parameters = line[line.index("Parameters:") + "Parameters:".length..]
+      hash = JSON.parse(parameters.gsub("=>", ":"))
+      parts = [tag.strong("Parameters:"), tag.br]
+      hash.each do |key, value|
+        parts << tag.strong("#{key}: ")
+        parts << value.to_s
+        parts << ", "
       end
+      safe_join(parts)
+    rescue JSON::ParserError, TypeError
+      line
     end
 
 

@@ -32,7 +32,7 @@ Rails::Pretty::Logger::ConsoleLogger.new("rails-pretty-logger", "hourly", file_c
 ```ruby
 # config/environments/development.rb
 
-require "rails/pretty/logger/config/logger_config"
+require "rails/pretty/logger/console_logger"
 
 logger_file = ActiveSupport::TaggedLogging.new(Rails::Pretty::Logger::ConsoleLogger.new("rails-pretty-logger", "hourly", file_count: 48))
 config.logger = logger_file
@@ -85,6 +85,28 @@ Mount the engine in your config/routes.rb:
 ```
 mount Rails::Pretty::Logger::Engine => "/rails-pretty-logger"
 ```
+
+### Protecting the dashboard
+
+Rails Pretty Logger does not provide its own authentication system. The dashboard can read and clear log files, so do not expose it publicly in production.
+
+For local-only use, mount it only in development:
+
+```ruby
+# config/routes.rb
+mount Rails::Pretty::Logger::Engine => "/rails-pretty-logger" if Rails.env.development?
+```
+
+For production use, protect it with whatever authentication or authorization your app already uses. If you prefer to keep the mount simple, configure a hook that runs before every engine action:
+
+```ruby
+# config/initializers/rails_pretty_logger.rb
+Rails.application.config.x.rails_pretty_logger.authenticate_with = -> {
+  authenticate_user!
+}
+```
+
+The hook is evaluated inside the engine controller, so controller helpers such as `authenticate_user!`, `current_user`, `head`, and `redirect_to` are available when your application defines them.
 
 ## Contributing
 

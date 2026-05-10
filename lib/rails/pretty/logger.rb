@@ -1,14 +1,19 @@
 require "active_support/core_ext/object/blank"
 require "active_support/core_ext/string/conversions"
+require "fileutils"
+require "pathname"
 require "rails/pretty/logger/engine"
 
 module Rails::Pretty::Logger
 
   class PrettyLogger
+    class InvalidLogFile < StandardError; end
+
+    attr_reader :log_file
 
     def initialize(params)
-      @log_file = params[:log_file]
       @filter_params = params
+      @log_file = self.class.resolve_log_file(params[:log_file])
     end
 
     def self.logger
@@ -23,13 +28,42 @@ module Rails::Pretty::Logger
       File.size?("#{log_file}").to_f / 2**20
     end
 
+    def self.log_root
+      Rails.root.join("log")
+    end
+
+    def self.resolve_log_file(log_file)
+      raise InvalidLogFile if log_file.blank?
+
+      candidate = Pathname.new(log_file.to_s)
+      candidate = log_root.join(candidate) unless candidate.absolute?
+
+      root_path = real_log_root
+      real_path = candidate.realpath
+
+      unless real_path.to_s == root_path.to_s || real_path.to_s.start_with?("#{root_path}/")
+        raise InvalidLogFile
+      end
+
+      raise InvalidLogFile unless real_path.file?
+
+      real_path.to_s
+    rescue Errno::ENOENT, Errno::EACCES, ArgumentError
+      raise InvalidLogFile
+    end
+
+    def self.real_log_root
+      FileUtils.mkdir_p(log_root)
+      log_root.realpath
+    end
+
     def self.get_log_file_list
-      log_files =  Dir["#{File.join(Rails.root, 'log')}/**.*"]
+      log_files = Dir[File.join(log_root, "*")].select { |file| File.file?(file) }
       logs_atr(log_files)
     end
 
     def self.get_hourly_log_file_list
-      log_files =  Dir["#{Rails.root}/log/hourly/**/*.*"].sort
+      log_files = Dir[File.join(log_root, "hourly", "**", "*")].select { |file| File.file?(file) }.sort
       logs_atr(log_files)
     end
 
@@ -81,7 +115,7 @@ module Rails::Pretty::Logger
     end
 
     def get_logs_from_file(file)
-      if @filter_params[:log_file].include?("test") || @filter_params[:log_file].include?("hourly")
+      if test_log?(file) || hourly_log?(file)
         get_test_logs(file)
       else
         filter_logs_with_date(file)
@@ -125,8 +159,7 @@ module Rails::Pretty::Logger
       divider = set_divider_value
       logs = get_logs_from_file(@log_file)
       logs_count =  (logs.count.to_f / divider).ceil
-      paginated_logs = logs[ @filter_params[:page].to_i * divider ..
-      (@filter_params[:page].to_i * divider) + divider ]
+      paginated_logs = logs[@filter_params[:page].to_i * divider, divider] || []
       data = {}
       data[:logs_count] = logs_count
       data[:paginated_logs] = paginated_logs
@@ -140,8 +173,17 @@ module Rails::Pretty::Logger
       elsif @filter_params[:date_range][:divider].blank?
         100
       else
-        @filter_params[:date_range][:divider].to_i
+        divider = @filter_params[:date_range][:divider].to_i
+        divider.positive? ? divider : 100
       end
+    end
+
+    def test_log?(file)
+      File.basename(file).include?("test")
+    end
+
+    def hourly_log?(file)
+      file.include?("#{File::SEPARATOR}hourly#{File::SEPARATOR}")
     end
 
   end

@@ -25,7 +25,7 @@ module Rails::Pretty::Logger
 
     def clear_logs
       @log.clear_logs
-      redirect_to hourly_logs_path({log_file: params[:log_file]})
+      redirect_to hourly_logs_path({log_file: @log.log_file})
     end
 
     private

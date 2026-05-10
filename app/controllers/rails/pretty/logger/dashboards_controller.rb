@@ -14,7 +14,7 @@ module Rails::Pretty::Logger
 
     def clear_logs
       @log.clear_logs
-      redirect_to logs_dashboards_path({log_file: params[:log_file]})
+      redirect_to logs_dashboards_path({log_file: @log.log_file})
     end
 
     private
