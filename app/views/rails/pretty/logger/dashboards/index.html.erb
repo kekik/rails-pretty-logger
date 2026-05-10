@@ -1,34 +1,48 @@
 <% if @log_file_list.count == 0 %>
-  <div>
-    <h1 class="message">There is no log file to show</h1>
+  <div class="empty-state">
+    <h1 class="message"><%= t("rails_pretty_logger.states.no_logs") %></h1>
   </div>
 
 <%  elsif is_stdout?%>
-  <div>
-    <h1 class="message">  "RAILS_LOG_TO_STDOUT" is present. no logs kept, remove it for logging </h1>
+  <div class="empty-state">
+    <h1 class="message"><%= t("rails_pretty_logger.states.stdout_logging") %></h1>
   </div>
 
 <% else %>
   <div class="logger_navbar">
-    <p>
-      <%= link_to('Hourly logs', hourly_logs_path, html_options = {class: "dashboard_button"}) %>
-    </p>
-      Log Files:
-      <% @log_file_list .each do |key, value| %>
-        <%= link_to(trim_name(value.fetch(:file_name)),
-        logs_dashboards_path(log_file: value.fetch(:file_name), date_range: { start: time_now, end: time_now }),
-        html_options = {class: "dashboard_button",
-        data: { confirm: "Log file size is #{ value[:file_size] } MB. Are you sure to open this file? " }}) %>
+    <div class="logger_navbar__heading">
+      <h1><%= t("rails_pretty_logger.navigation.main_logs") %></h1>
+    </div>
+
+    <nav class="logger_navbar__actions">
+      <%= link_to(t("rails_pretty_logger.navigation.hourly_logs"), hourly_logs_path, class: "dashboard_button") %>
+    </nav>
+  </div>
+
+  <section class="log-file-list" aria-label="<%= t("rails_pretty_logger.navigation.log_files") %>">
+    <div class="log-file-list__header">
+      <h2><%= t("rails_pretty_logger.navigation.log_files") %></h2>
+    </div>
+
+    <% @log_file_list.each do |_key, value| %>
+      <div class="log-file-row">
+        <div class="log-file-row__main">
+          <%= link_to(trim_name(value.fetch(:file_name)),
+            logs_dashboards_path(log_file: value.fetch(:file_name), date_range: { start: time_now, end: time_now }),
+            html_options = {class: "log-file-row__name",
+            data: { confirm: t("rails_pretty_logger.confirmations.open_file", size: value[:file_size]) }}) %>
+          <span class="log-file-row__meta"><%= t("rails_pretty_logger.logs.file_size", size: value[:file_size]) %></span>
+        </div>
 
         <% unless rails_pretty_logger_read_only? %>
-          <%= button_to("x",
-          clear_logs_dashboards_path(log_file: value.fetch(:file_name)),
-          method: :post,
-          class: "clear_logs",
-          form: { class: "clear_logs_form",
-          data: { turbo_confirm: "Are you sure to clear all logs from #{value.fetch(:file_name).capitalize}? " }}) %>
+          <%= button_to(t("rails_pretty_logger.actions.clear"),
+            clear_logs_dashboards_path(log_file: value.fetch(:file_name)),
+            method: :post,
+            class: "clear_logs",
+            form: { class: "clear_logs_form",
+            data: { turbo_confirm: t("rails_pretty_logger.confirmations.clear_file", file: value.fetch(:file_name).capitalize) }}) %>
         <% end %>
-      <% end %>
-
-  </div>
+      </div>
+    <% end %>
+  </section>
 <% end %>

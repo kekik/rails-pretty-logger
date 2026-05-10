@@ -1,42 +1,48 @@
 <% unless @hourly_logs_present %>
-<div>
-   <h1 class="message">There is no log file to show</h1>
+<div class="empty-state">
+   <h1 class="message"><%= t("rails_pretty_logger.states.no_logs") %></h1>
 </div>
 
 <% else %>
 
 <div class="hourly-list">
-
    <div id="hourly">
-
       <div class="logger_navbar">
-        <p>
-          <%= link_to('Main Logs',dashboards_path, html_options = {class: "dashboard_button"}) %>
-        </p>
+        <div class="logger_navbar__heading">
+          <h1><%= t("rails_pretty_logger.navigation.hourly_logs") %></h1>
+        </div>
+
+        <nav class="logger_navbar__actions">
+          <%= link_to(t("rails_pretty_logger.navigation.main_logs"), dashboards_path, class: "dashboard_button") %>
+        </nav>
       </div>
 
-      <%= form_with url: hourly_logs_path, method: :get, scope: nil, class: "hourly_filters" do |form| %>
-         <%= form.search_field :search, value: params[:search], placeholder: "Search", class: "search" %>
+      <%= form_with url: hourly_logs_path, method: :get, scope: nil, class: "hourly_filters filter-panel" do |form| %>
+         <%= form.label :search, t("rails_pretty_logger.filters.search") %>
+         <%= form.search_field :search, value: params[:search], placeholder: t("rails_pretty_logger.filters.search"), class: "search" %>
          <%= form.hidden_field :sort, value: params[:sort] %>
-         <%= form.submit "Search" %>
-         <%= link_to("Sort #{params[:sort] == 'desc' ? 'asc' : 'desc'}",
+         <%= form.submit t("rails_pretty_logger.filters.search") %>
+         <%= link_to(t("rails_pretty_logger.actions.sort", direction: params[:sort] == "desc" ? "asc" : "desc"),
             hourly_logs_path(search: params[:search], sort: params[:sort] == "desc" ? "asc" : "desc"),
             class: "sort") %>
       <% end %>
 
       <% if @log_file_list.empty? %>
-         <h1 class="message">There is no log file to show</h1>
+         <div class="empty-state empty-state--inline">
+            <h1 class="message"><%= t("rails_pretty_logger.states.no_logs") %></h1>
+         </div>
       <% end %>
 
-      <ul class="list">
+      <ul class="list log-file-list">
          <% @log_file_list.each do |value| %>
-            <li>
-               <h5 class="name">
+            <li class="log-file-row">
+               <div class="log-file-row__main">
                   <%= link_to(modify_name(value.fetch(:file_name)),
                   logs_hourly_logs_path(log_file: value.fetch(:file_name), date_range: { start: time_now, end: time_now }),
-                  html_options = {class: "dashboard_button",
-                  data: { confirm: "Log file size is #{ value.fetch(:file_size) } MB. Are you sure to open this file? " }}) %>
-               </h5>
+                  html_options = {class: "name log-file-row__name",
+                  data: { confirm: t("rails_pretty_logger.confirmations.open_file", size: value.fetch(:file_size)) }}) %>
+                  <span class="log-file-row__meta"><%= t("rails_pretty_logger.logs.file_size", size: value.fetch(:file_size)) %></span>
+               </div>
             </li>
          <% end %>
       </ul>

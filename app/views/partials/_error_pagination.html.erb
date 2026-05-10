@@ -1,10 +1,11 @@
 <% if log_data.fetch(:error).present? %>
-<p>
+<p class="form-error">
   <%= log_data.fetch(:error) %>
 </p>
 <% end %>
 
-<% if log_data.fetch(:error).blank? %>
+<% if log_data.fetch(:error).blank? && log_data.fetch(:logs_count).positive? %>
+  <nav class="pagination" aria-label="<%= t("rails_pretty_logger.navigation.pagination") %>">
   <% log_data.fetch(:logs_count).times do |index| %>
     <%= link_to(
       index + 1,
@@ -18,5 +19,5 @@
       html_options = {class: "#{is_page_active(index, params)}"}
     ) %>
   <% end %>
+  </nav>
 <% end %>
-<hr>

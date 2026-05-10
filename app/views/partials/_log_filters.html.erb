@@ -3,12 +3,12 @@
   <%= form.hidden_field :mode, value: params[:mode] if rails_pretty_logger_tail_mode? %>
   <%= form.hidden_field :group, value: params[:group] if rails_pretty_logger_request_grouping? %>
 
-  <%= form.label :query, "Search" %>
-  <%= form.search_field :query, value: params[:query], placeholder: "Search log content" %>
+  <%= form.label :query, t("rails_pretty_logger.filters.search") %>
+  <%= form.search_field :query, value: params[:query], placeholder: t("rails_pretty_logger.filters.search_log_content") %>
 
-  <%= form.label :severity, "Severity" %>
+  <%= form.label :severity, t("rails_pretty_logger.filters.severity") %>
   <%= form.select :severity, rails_pretty_logger_severity_options, selected: params[:severity] %>
 
-  <%= form.submit "Filter" %>
-  <%= link_to("Clear filters", send(path, rails_pretty_logger_log_base_params)) %>
+  <%= form.submit t("rails_pretty_logger.filters.filter") %>
+  <%= link_to(t("rails_pretty_logger.filters.clear_filters"), send(path, rails_pretty_logger_log_base_params)) %>
 <% end %>

@@ -1,6 +1,35 @@
 en:
   rails_pretty_logger:
+    actions:
+      clear: "Clear"
+      clear_logs: "Clear logs"
+      sort: "Sort %{direction}"
+      submit: "Submit"
+    confirmations:
+      clear_all: "Are you sure to clear all logs?"
+      clear_file: "Are you sure to clear all logs from %{file}?"
+      open_file: "Log file size is %{size} MB. Are you sure to open this file?"
+    filters:
+      clear_filters: "Clear filters"
+      end_date: "End Date:"
+      filter: "Filter"
+      logs_per_page: "Logs per page:"
+      search: "Search"
+      search_log_content: "Search log content"
+      severity: "Severity"
+      start_date: "Start Date:"
     logs:
+      file_size: "%{size} MB"
+      filtered_view: "Filtered view"
       group_requests: "Group requests"
       plain_lines: "Plain lines"
+      tail_last_lines: "Tail last %{count} lines"
       ungrouped_lines: "Ungrouped lines"
+    navigation:
+      hourly_logs: "Hourly logs"
+      log_files: "Log files"
+      main_logs: "Main logs"
+      pagination: "Pagination"
+    states:
+      no_logs: "There is no log file to show"
+      stdout_logging: "RAILS_LOG_TO_STDOUT is present. No logs are being kept."
