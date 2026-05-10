@@ -1,23 +1,28 @@
-$:.push File.expand_path("lib", __dir__)
+require_relative "lib/rails/pretty/logger/version"
 
-# Maintain your gem's version:
-require "rails/pretty/logger/version"
+Gem::Specification.new do |spec|
+  spec.name        = "rails-pretty-logger"
+  spec.version     = Rails::Pretty::Logger::VERSION
+  spec.authors     = ["Cem Baykam", "Mehmet Celik"]
+  spec.email       = ["cbaykam@gmail.com", "mehmetcelik4@gmail.com"]
+  spec.summary     = "Rails engine for browsing and highlighting application logs."
+  spec.description = "Rails Pretty Logger provides a mounted dashboard for browsing log files, highlighting entries, clearing logs, and reading hourly rotated log files."
+  spec.homepage    = "https://github.com/MehmetCelik4/rails-pretty-logger"
+  spec.license     = "MIT"
+  spec.required_ruby_version = ">= 3.1"
+  spec.metadata    = {
+    "source_code_uri" => spec.homepage,
+    "changelog_uri" => "#{spec.homepage}/releases"
+  }
 
-# Describe your gem and declare its dependencies:
-Gem::Specification.new do |s|
-  s.name        = "rails-pretty-logger"
-  s.version     = Rails::Pretty::Logger::VERSION
-  s.authors     = ["Cem", "Mehmet"]
-  s.email       = ["cbaykam@gmail.com", "mehmetcelik4@gmail.com"]
-  s.homepage    = "https://github.com/kekik/rails-pretty-logger"
-  s.summary     = "Pretty Logger is a logging framework which can be checked from '/your-web-page/rails-pretty-logger/dashboards',
-   can also debug easily with highlight method. And can add Hourly log rotation."
-  s.description = "Check and search logs from dashboard, use hightlight to spot easily, add hourly rotation if needed."
-  s.license     = "MIT"
+  spec.files = Dir.chdir(File.expand_path(__dir__)) do
+    Dir["{app,config,lib}/**/*", "MIT-LICENSE", "README.md"]
+  end
 
-  s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
-  s.add_dependency "rails", ">= 5.0", "<= 6.1.4.1" 
-  s.add_development_dependency 'sqlite3', '~> 1.3', '>= 1.3.6'
-  s.add_development_dependency 'rspec-rails', "~> 3.6"
-  s.required_ruby_version = '>= 2.2.2'  
+  spec.add_dependency "actionpack", ">= 7.1", "< 9.0"
+  spec.add_dependency "actionview", ">= 7.1", "< 9.0"
+  spec.add_dependency "activesupport", ">= 7.1", "< 9.0"
+  spec.add_dependency "railties", ">= 7.1", "< 9.0"
+
+  spec.add_development_dependency "minitest", "~> 5.0"
 end

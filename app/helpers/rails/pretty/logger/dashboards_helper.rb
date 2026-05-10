@@ -35,10 +35,6 @@ module Rails::Pretty::Logger
       "active" if params[:page].to_i == index
     end
 
-    def check_rails_version
-      Rails::VERSION::STRING[0..2].to_f < 5.2
-    end
-
     def parse_parameters(line)
       parameters = line[line.index("Parameters:") + 12 ..line.length]
       hash = JSON.parse parameters.gsub('=>', ':') rescue nil

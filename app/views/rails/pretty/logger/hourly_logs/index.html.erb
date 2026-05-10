@@ -1,4 +1,4 @@
-<% if @log_file_list.count == 0 %>
+<% unless @hourly_logs_present %>
 <div>
    <h1 class="message">There is no log file to show</h1>
 </div>
@@ -13,27 +13,45 @@
         <p>
           <%= link_to('Main Logs',dashboards_path, html_options = {class: "dashboard_button"}) %>
         </p>
-
-
       </div>
-      <input class="search" placeholder="Search" />
-      <button class="sort" data-sort="name">
-         Sort
-      </button>
-      <ul class="pagination"></ul>
+
+      <%= form_with url: hourly_logs_path, method: :get, scope: nil, class: "hourly_filters" do |form| %>
+         <%= form.search_field :search, value: params[:search], placeholder: "Search", class: "search" %>
+         <%= form.hidden_field :sort, value: params[:sort] %>
+         <%= form.submit "Search" %>
+         <%= link_to("Sort #{params[:sort] == 'desc' ? 'asc' : 'desc'}",
+            hourly_logs_path(search: params[:search], sort: params[:sort] == "desc" ? "asc" : "desc"),
+            class: "sort") %>
+      <% end %>
+
+      <% if @log_file_list.empty? %>
+         <h1 class="message">There is no log file to show</h1>
+      <% end %>
 
       <ul class="list">
-         <% @log_file_list .each do |key, value| %>
-         <li>
-            <h5 class="name">
-               <%= link_to(modify_name(value.fetch(:file_name)),
-               logs_hourly_logs_path(log_file: value.fetch(:file_name), date_range: { start: time_now, end: time_now }),
-               html_options = {class: "dashboard_button",
-               data: { confirm: "Log file size is #{ value.fetch(:file_size) } MB. Are you sure to open this file? " }}) %>
-            </h5>
-            <% end %>
-         </li>
+         <% @log_file_list.each do |value| %>
+            <li>
+               <h5 class="name">
+                  <%= link_to(modify_name(value.fetch(:file_name)),
+                  logs_hourly_logs_path(log_file: value.fetch(:file_name), date_range: { start: time_now, end: time_now }),
+                  html_options = {class: "dashboard_button",
+                  data: { confirm: "Log file size is #{ value.fetch(:file_size) } MB. Are you sure to open this file? " }}) %>
+               </h5>
+            </li>
+         <% end %>
       </ul>
+
+      <% if @total_pages > 1 %>
+         <ul class="pagination">
+            <% 1.upto(@total_pages) do |page| %>
+               <li>
+                  <%= link_to page,
+                     hourly_logs_path(search: params[:search], sort: params[:sort], page: page),
+                     class: ("active" if page == @page) %>
+               </li>
+            <% end %>
+         </ul>
+      <% end %>
    </div>
 </div>
 <% end %>

@@ -11,11 +11,12 @@
 
   <% if @log_data[:logs_count] > 0 %>
     <p>
-      <%= link_to("Clear logs",
+      <%= button_to("Clear logs",
           clear_logs_hourly_logs_path(log_file: params[:log_file]),
-          html_options = {class: "clear_logs",
           method: :post,
-          data: { confirm: "Are you sure to clear all logs? " }}) %>
+          class: "clear_logs",
+          form: { class: "clear_logs_form",
+          data: { turbo_confirm: "Are you sure to clear all logs? " }}) %>
     </p>
   <% end %>
 </div>

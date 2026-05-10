@@ -1,4 +1,7 @@
 
+require "fileutils"
+require "logger"
+
 module Rails::Pretty::Logger
 
   class RailsLogger < ::Logger
@@ -144,9 +147,9 @@ module Rails::Pretty::Logger
           month_dir = File.expand_path("..",day_dir)
           year_dir = File.expand_path("../..",day_dir)
           File.delete(file_path) if File.exist?(file_path)
-          Dir.rmdir(day_dir) if Dir.empty?(day_dir)
-          Dir.rmdir(month_dir) if month_dir.empty?
-          Dir.rmdir(year_dir) if year_dir.empty?
+          Dir.rmdir(day_dir) if Dir.exist?(day_dir) && Dir.empty?(day_dir)
+          Dir.rmdir(month_dir) if Dir.exist?(month_dir) && Dir.empty?(month_dir)
+          Dir.rmdir(year_dir) if Dir.exist?(year_dir) && Dir.empty?(year_dir)
         end
       end
 

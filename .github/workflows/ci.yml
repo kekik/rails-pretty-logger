@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    strategy:
+      fail-fast: false
+      matrix:
+        rails-version:
+          - "~> 7.1.0"
+          - "~> 7.2.0"
+          - "~> 8.0.0"
+
+    env:
+      RAILS_VERSION: ${{ matrix.rails-version }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+
+      - name: Install gems
+        run: nix develop -c bundle install
+
+      - name: Run Ruby tests
+        run: nix develop -c bundle exec rails test
+
+      - name: Run browser tests
+        run: nix develop -c bundle exec ruby -Itest test/system/rails_pretty_logger_interaction_test.rb
+
+      - name: Build gem
+        run: nix develop -c gem build rails-pretty-logger.gemspec

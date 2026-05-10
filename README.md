@@ -1,5 +1,6 @@
 # Rails::Pretty::Logger
-Pretty Logger is a logging framework which helps for checking  logs from page, with PrettyLogger.highlight method you can easily spot what you seek.If you want to perform hourly log rotation  Override logger class with Pretty logger, with file_count parameter kept files can be limited as you wish.
+
+Pretty Logger is a Rails engine for checking application logs from a mounted dashboard. It supports Rails 7.1+ and Rails 8, highlighted log entries, clearing log files, and optional hourly log rotation.
 
 ## Usage
 visit http://your-webpage/rails-pretty-logger/dashboards/ then choose your log file, search with date range.
@@ -42,7 +43,7 @@ for zch usage  ```noglob rake app:split_log["new_log_file_name","/path/to/your/l
 Add this line to your application's Gemfile:
 
 ```
-gem 'rails-pretty-logger'
+gem "rails-pretty-logger"
 ```
 
 And then execute:
@@ -62,6 +63,17 @@ mount Rails::Pretty::Logger::Engine => "/rails-pretty-logger"
 
 ## Contributing
 
+This project uses a Nix flake and direnv for local development:
+
+```bash
+direnv allow
+bundle install
+bundle exec rails test
+bundle exec ruby -Itest test/system/rails_pretty_logger_interaction_test.rb
+```
+
+CI runs the same test suite against Rails 7.1, 7.2, and 8.0 before PRs and pushes to `main` or `master`.
+
 1. [Fork][fork] the [official repository][repo].
 2. [Create a topic branch.][branch]
 3. Implement your feature or bug fix.
@@ -72,7 +84,7 @@ mount Rails::Pretty::Logger::Engine => "/rails-pretty-logger"
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
 
-[repo]: https://github.com/kekik/rails-pretty-logger/tree/master
+[repo]: https://github.com/MehmetCelik4/rails-pretty-logger/tree/master
 [fork]: https://help.github.com/articles/fork-a-repo/
 [branch]: https://help.github.com/articles/creating-and-deleting-branches-within-your-repository/
 [pr]: https://help.github.com/articles/using-pull-requests/
