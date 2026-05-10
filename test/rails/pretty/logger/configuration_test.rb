@@ -14,6 +14,12 @@ module Rails
           assert_not configuration.read_only?
         end
 
+        test "defaults to read only in production" do
+          Rails.stub(:env, ActiveSupport::StringInquirer.new("production")) do
+            assert Rails::Pretty::Logger::Configuration.new.read_only?
+          end
+        end
+
         test "can be configured" do
           auth_hook = -> { head :unauthorized }
 

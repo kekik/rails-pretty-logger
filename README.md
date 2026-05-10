@@ -130,7 +130,7 @@ Rails::Pretty::Logger.configure do |config|
 end
 ```
 
-`read_only` hides clear buttons and returns `403 Forbidden` from clear endpoints. `max_file_size` is optional; when set, files larger than the limit return `413 Payload Too Large` instead of being read through the dashboard.
+`read_only` defaults to `true` in production and `false` elsewhere. It hides clear buttons and returns `403 Forbidden` from clear endpoints. `max_file_size` is optional; when set, files larger than the limit return `413 Payload Too Large` instead of being read through the dashboard.
 
 For custom log formats, configure a parser that returns metadata for lines it understands:
 

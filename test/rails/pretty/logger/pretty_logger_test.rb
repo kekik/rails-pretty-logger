@@ -238,6 +238,62 @@ module Rails
           assert_includes data[:paginated_logs].first[:lines].join, "ERROR payment failed"
         end
 
+        test "reuses cached request group index for repeated grouping" do
+          File.write(@log_file, <<~LOG)
+            Started GET "/first" for 127.0.0.1 at #{Date.current.strftime("%Y-%m-%d")} 11:17:00 +0300
+            Completed 200 OK in 12ms
+            Started POST "/second" for 127.0.0.1 at #{Date.current.strftime("%Y-%m-%d")} 11:18:00 +0300
+            Completed 500 Internal Server Error in 25ms
+          LOG
+          params = {
+            log_file: @log_file.to_s,
+            group: "request",
+            date_range: {
+              start: Date.current.to_s,
+              end: Date.current.to_s,
+              divider: "1"
+            }
+          }
+
+          PrettyLogger.new(ActionController::Parameters.new(params)).log_data
+          logger = PrettyLogger.new(ActionController::Parameters.new(params.merge(page: "1")))
+          logger.define_singleton_method(:build_request_group_index) do
+            flunk "grouped log_data should reuse cached request group index"
+          end
+
+          data = logger.log_data
+
+          assert_equal 2, data[:logs_count]
+          assert_equal "/second", data[:paginated_logs].first[:path]
+        end
+
+        test "loads request group index from persistent cache" do
+          File.write(@log_file, <<~LOG)
+            Started GET "/persisted" for 127.0.0.1 at #{Date.current.strftime("%Y-%m-%d")} 11:17:00 +0300
+            Completed 200 OK in 12ms
+          LOG
+          params = {
+            log_file: @log_file.to_s,
+            group: "request",
+            date_range: {
+              start: Date.current.to_s,
+              end: Date.current.to_s
+            }
+          }
+
+          PrettyLogger.new(ActionController::Parameters.new(params)).log_data
+          PrettyLogger.clear_line_index_memory_cache!
+          logger = PrettyLogger.new(ActionController::Parameters.new(params))
+          logger.define_singleton_method(:build_request_group_index) do
+            flunk "grouped log_data should load persisted request group index"
+          end
+
+          data = logger.log_data
+
+          assert_equal 1, data[:logs_count]
+          assert_equal "/persisted", data[:paginated_logs].first[:path]
+        end
+
         test "paginates large log files without materializing the full log array" do
           large_log = Rails.root.join("log", "large_production.log")
           File.open(large_log, "w") do |file|
@@ -300,6 +356,39 @@ module Rails
           assert_equal 6, data[:logs_count]
           assert_equal 10, data[:paginated_logs].count
           assert_includes data[:paginated_logs].first, "/cached/10"
+        ensure
+          FileUtils.rm_f(large_log) if large_log
+        end
+
+        test "loads cached line offsets from persistent cache" do
+          large_log = Rails.root.join("log", "persisted_cached_large_production.log")
+          File.open(large_log, "w") do |file|
+            20.times do |index|
+              file.puts %(Started GET "/persisted-cached/#{index}" for 127.0.0.1 at #{Date.current.strftime("%Y-%m-%d")} 11:17:00 +0300)
+            end
+          end
+          params = {
+            log_file: large_log.to_s,
+            page: "0",
+            date_range: {
+              start: Date.current.to_s,
+              end: Date.current.to_s,
+              divider: "10"
+            }
+          }
+
+          PrettyLogger.new(ActionController::Parameters.new(params)).log_data
+          PrettyLogger.clear_line_index_memory_cache!
+          logger = PrettyLogger.new(ActionController::Parameters.new(params.merge(page: "1")))
+          logger.define_singleton_method(:build_log_line_offsets) do
+            flunk "log_data should load persisted offsets instead of scanning the file again"
+          end
+
+          data = logger.log_data
+
+          assert_equal 2, data[:logs_count]
+          assert_equal 10, data[:paginated_logs].count
+          assert_includes data[:paginated_logs].first, "/persisted-cached/10"
         ensure
           FileUtils.rm_f(large_log) if large_log
         end

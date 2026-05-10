@@ -6,7 +6,7 @@ module Rails::Pretty::Logger
     def initialize
       @authenticate_with = nil
       @log_line_parser = nil
-      @read_only = false
+      @read_only = Rails.env.production?
       @max_file_size = nil
       @tail_lines = 500
     end

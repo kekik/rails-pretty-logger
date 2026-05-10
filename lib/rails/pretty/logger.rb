@@ -1,5 +1,6 @@
 require "active_support/core_ext/object/blank"
 require "active_support/core_ext/string/conversions"
+require "digest"
 require "fileutils"
 require "json"
 require "pathname"
@@ -133,8 +134,19 @@ module Rails::Pretty::Logger
         end
       end
 
-      offsets = yield.freeze
+      if (offsets = read_persistent_line_index(cache_key, signature))
+        store_line_index_cache(entry_key, offsets)
+        return offsets
+      end
 
+      offsets = yield.freeze
+      write_persistent_line_index(cache_key, signature, offsets)
+      store_line_index_cache(entry_key, offsets)
+
+      offsets
+    end
+
+    def self.store_line_index_cache(entry_key, offsets)
       line_index_cache_mutex.synchronize do
         line_index_cache[entry_key] = offsets
         line_index_cache_order.delete(entry_key)
@@ -144,11 +156,14 @@ module Rails::Pretty::Logger
           line_index_cache.delete(line_index_cache_order.shift)
         end
       end
-
-      offsets
     end
 
     def self.clear_line_index_cache!
+      clear_line_index_memory_cache!
+      FileUtils.rm_rf(line_index_cache_root)
+    end
+
+    def self.clear_line_index_memory_cache!
       line_index_cache_mutex.synchronize do
         line_index_cache.clear
         line_index_cache_order.clear
@@ -157,9 +172,10 @@ module Rails::Pretty::Logger
 
     def self.clear_line_index_cache_for!(log_file)
       line_index_cache_mutex.synchronize do
-        line_index_cache.delete_if { |(cache_key, _signature), _offsets| cache_key.first == log_file }
-        line_index_cache_order.delete_if { |cache_key, _signature| cache_key.first == log_file }
+        line_index_cache.delete_if { |(cache_key, _signature), _offsets| cache_key.first == log_file || cache_key[1] == log_file }
+        line_index_cache_order.delete_if { |cache_key, _signature| cache_key.first == log_file || cache_key[1] == log_file }
       end
+      FileUtils.rm_rf(line_index_cache_root)
     end
 
     def self.line_index_cache
@@ -172,6 +188,33 @@ module Rails::Pretty::Logger
 
     def self.line_index_cache_mutex
       @line_index_cache_mutex ||= Mutex.new
+    end
+
+    def self.read_persistent_line_index(cache_key, signature)
+      payload = Marshal.load(File.binread(line_index_cache_path(cache_key)))
+      return unless payload[:signature] == signature
+
+      payload[:offsets].freeze
+    rescue Errno::ENOENT, EOFError, TypeError, ArgumentError
+      nil
+    end
+
+    def self.write_persistent_line_index(cache_key, signature, offsets)
+      FileUtils.mkdir_p(line_index_cache_root)
+      path = line_index_cache_path(cache_key)
+      temp_path = "#{path}.#{$$}.tmp"
+      File.binwrite(temp_path, Marshal.dump(signature: signature, offsets: offsets))
+      FileUtils.mv(temp_path, path)
+    rescue SystemCallError, TypeError, ArgumentError
+      FileUtils.rm_f(temp_path) if temp_path
+    end
+
+    def self.line_index_cache_path(cache_key)
+      line_index_cache_root.join("#{Digest::SHA256.hexdigest(Marshal.dump(cache_key))}.marshal")
+    end
+
+    def self.line_index_cache_root
+      Rails.root.join("tmp", "cache", "rails_pretty_logger", "line_indexes")
     end
 
     def clear_logs
@@ -424,20 +467,14 @@ module Rails::Pretty::Logger
     def grouped_log_data(error, divider)
       self.class.ensure_file_size_within_limit!(@log_file)
 
-      group_count = 0
-      paginated_groups = []
       page_start = @filter_params[:page].to_i * divider
       page_end = page_start + divider
+      matching_groups = matching_request_group_index
 
-      each_request_group(@log_file) do |group|
-        next unless group_matches_filters?(group)
-
-        paginated_groups << group if group_count >= page_start && group_count < page_end
-        group_count += 1
-      end
+      paginated_groups = (matching_groups[page_start...page_end] || []).map { |group| request_group_from_index(group) }
 
       {
-        logs_count: (group_count.to_f / divider).ceil,
+        logs_count: (matching_groups.length.to_f / divider).ceil,
         paginated_logs: paginated_groups,
         error: error
       }
@@ -446,25 +483,66 @@ module Rails::Pretty::Logger
     def each_request_group(file)
       return enum_for(:each_request_group, file) unless block_given?
 
+      cached_request_group_index.each do |group|
+        yield request_group_from_index(group)
+      end
+    end
+
+    def cached_request_group_index
+      self.class.fetch_line_index_cache(request_group_index_cache_key, log_file_signature) do
+        build_request_group_index
+      end
+    end
+
+    def build_request_group_index
+      groups = []
       current_group = nil
 
-      each_log_line(file) do |line|
+      each_log_line_with_offset(@log_file) do |line, offset|
         if (metadata = request_start_metadata(line))
-          yield current_group if current_group
-          current_group = metadata.merge(lines: [line])
+          groups << current_group if current_group
+          current_group = metadata.merge(line_offsets: [offset])
         elsif current_group
-          current_group[:lines] << line
+          current_group[:line_offsets] << offset
           current_group.merge!(request_completion_metadata(line) || {})
         else
-          current_group = { type: :ungrouped, lines: [line] }
+          current_group = { type: :ungrouped, line_offsets: [offset] }
         end
       end
 
-      yield current_group if current_group
+      groups << current_group if current_group
+      groups
+    end
+
+    def matching_request_group_index
+      groups = cached_request_group_index
+      return groups unless filtered_request_groups?
+
+      groups.select { |group| group_matches_filters?(request_group_from_index(group)) }
+    end
+
+    def request_group_from_index(group)
+      group.merge(lines: read_log_lines_at_offsets(@log_file, group.fetch(:line_offsets))).tap do |request_group|
+        request_group.delete(:line_offsets)
+      end
+    end
+
+    def filtered_request_groups?
+      @filter_params[:query].to_s.strip.present? || normalized_severity_filter.present?
     end
 
     def group_matches_filters?(group)
       group.fetch(:lines).any? { |line| line_matches_filters?(line) }
+    end
+
+    def request_group_index_cache_key
+      [
+        :request_groups,
+        @log_file,
+        date_filtered_log? ? start_date : nil,
+        date_filtered_log? ? end_date : nil,
+        Rails::Pretty::Logger.configuration.log_line_parser&.object_id
+      ]
     end
 
     def request_start_metadata(line)
