@@ -1,22 +1,12 @@
-begin
-  require 'bundler/setup'
-rescue LoadError
-  puts 'You must `gem install bundler` and `bundle install` to run rake tasks'
+require "bundler/setup"
+require "rake/testtask"
+
+Rake::TestTask.new(:test) do |test|
+  test.libs << "test"
+  test.pattern = "test/**/*_test.rb"
 end
 
-require 'rdoc/task'
+require "bundler/gem_tasks"
+load "lib/tasks/rails/pretty/logger_tasks.rake"
 
-RDoc::Task.new(:rdoc) do |rdoc|
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title    = 'Rails::Pretty::Logger'
-  rdoc.options << '--line-numbers'
-  rdoc.rdoc_files.include('README.md')
-  rdoc.rdoc_files.include('lib/**/*.rb')
-end
-
-APP_RAKEFILE = File.expand_path("spec/dummy/Rakefile", __dir__)
-load 'rails/tasks/engine.rake'
-
-load 'rails/tasks/statistics.rake'
-
-require 'bundler/gem_tasks'
+task default: :test

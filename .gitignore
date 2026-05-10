@@ -1,4 +1,6 @@
 .bundle/
+.direnv/
+vendor/bundle/
 log/*.log
 log/**
 pkg/
@@ -10,6 +12,8 @@ spec/dummy/node_modules/
 spec/dummy/yarn-error.log
 spec/dummy/storage/
 spec/dummy/tmp/
+test/dummy/log/*.log
+test/dummy/tmp/
 *.gem
 *.log
 Gemfile.lock

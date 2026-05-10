@@ -96,6 +96,16 @@ hr {
     color: #89000C;
     background-color: #FFFFFF;
 }
+.clear_logs_form {
+	display: inline;
+}
+.clear_logs_form div {
+	display: inline;
+}
+button.clear_logs {
+	cursor: pointer;
+	font-family:Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+}
 p {
 	padding: 6px 0;
 	font-family: Consolas, "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", Monaco, "Courier New", "monospace";
@@ -148,6 +158,12 @@ input[type=submit]:hover {
 	font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
 	color: #5E5E5E;
 	font-size: 14px;
+}
+.hourly-list .hourly_filters {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
 }
 .hourly-list .sort {
 	font-size:16px;

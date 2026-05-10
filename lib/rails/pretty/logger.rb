@@ -1,3 +1,5 @@
+require "active_support/core_ext/object/blank"
+require "active_support/core_ext/string/conversions"
 require "rails/pretty/logger/engine"
 
 module Rails::Pretty::Logger
@@ -22,13 +24,13 @@ module Rails::Pretty::Logger
     end
 
     def self.get_log_file_list
-      log_files =  Dir["#{File.join(Rails.root, 'log')}" + "/**.*"]
-      self.logs_atr(log_files)
+      log_files =  Dir["#{File.join(Rails.root, 'log')}/**.*"]
+      logs_atr(log_files)
     end
 
     def self.get_hourly_log_file_list
       log_files =  Dir["#{Rails.root}/log/hourly/**/*.*"].sort
-      self.logs_atr(log_files)
+      logs_atr(log_files)
     end
 
     def self.logs_atr(log_files)
@@ -42,7 +44,7 @@ module Rails::Pretty::Logger
     end
 
     def clear_logs
-      open(@log_file, File::TRUNC) {}
+      File.open(@log_file, File::TRUNC) {}
     end
 
     def start_date
