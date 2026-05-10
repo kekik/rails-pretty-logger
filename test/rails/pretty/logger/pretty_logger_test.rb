@@ -1,4 +1,5 @@
 require "test_helper"
+require "minitest/mock"
 require "stringio"
 
 module Rails
@@ -111,6 +112,37 @@ module Rails
 
           assert_equal 1, data[:logs_count]
           assert_equal ["TAIL ENTRY 7\n", "TAIL ENTRY 8\n", "TAIL ENTRY 9\n"], data[:paginated_logs]
+        ensure
+          FileUtils.rm_f(tail_log) if tail_log
+        end
+
+        test "tail log data reads from the end of the file" do
+          tail_log = Rails.root.join("log", "tail_reverse_read_production.log")
+          File.open(tail_log, "w") do |file|
+            2_000.times { |index| file.puts "TAIL REVERSE ENTRY #{index}" }
+          end
+          Rails::Pretty::Logger.configure { |config| config.tail_lines = 2 }
+          logger = PrettyLogger.new(ActionController::Parameters.new(log_file: tail_log.to_s))
+
+          data = nil
+          IO.stub(:foreach, ->(*) { flunk "tail_log_data should not scan the file from the first line" }) do
+            data = logger.tail_log_data
+          end
+
+          assert_equal ["TAIL REVERSE ENTRY 1998\n", "TAIL REVERSE ENTRY 1999\n"], data[:paginated_logs]
+        ensure
+          FileUtils.rm_f(tail_log) if tail_log
+        end
+
+        test "tail log data preserves the final line without a trailing newline" do
+          tail_log = Rails.root.join("log", "tail_without_newline_production.log")
+          File.write(tail_log, "TAIL ENTRY 1\nTAIL ENTRY 2\nTAIL ENTRY 3")
+          Rails::Pretty::Logger.configure { |config| config.tail_lines = 2 }
+          logger = PrettyLogger.new(ActionController::Parameters.new(log_file: tail_log.to_s))
+
+          data = logger.tail_log_data
+
+          assert_equal ["TAIL ENTRY 2\n", "TAIL ENTRY 3"], data[:paginated_logs]
         ensure
           FileUtils.rm_f(tail_log) if tail_log
         end

@@ -22,6 +22,7 @@ module Rails::Pretty::Logger
     class InvalidLogFile < StandardError; end
     class FileTooLarge < StandardError; end
     SEVERITIES = %w[DEBUG INFO WARN ERROR FATAL UNKNOWN].freeze
+    TAIL_READ_CHUNK_SIZE = 64 * 1024
 
     attr_reader :log_file
 
@@ -250,12 +251,28 @@ module Rails::Pretty::Logger
     end
 
     def tail_lines(file, count)
-      buffer = []
-      IO.foreach(file) do |line|
-        buffer << line
-        buffer.shift if buffer.length > count
+      count = count.to_i
+      return [] unless count.positive?
+
+      File.open(file, "rb") do |io|
+        offset = io.size
+        return [] if offset.zero?
+
+        chunks = []
+        newline_count = 0
+
+        while offset.positive? && newline_count <= count
+          chunk_size = [TAIL_READ_CHUNK_SIZE, offset].min
+          offset -= chunk_size
+          io.seek(offset)
+
+          chunk = io.read(chunk_size)
+          chunks.unshift(chunk)
+          newline_count += chunk.count("\n")
+        end
+
+        chunks.join.lines.last(count).map { |line| line.force_encoding(Encoding.default_external) }
       end
-      buffer
     end
 
   end
