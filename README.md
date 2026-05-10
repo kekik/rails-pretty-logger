@@ -80,7 +80,16 @@ Or install it yourself as:
 ```bash
 $ gem install rails-pretty-logger
 ```
-Mount the engine in your config/routes.rb:
+
+Run the install generator:
+
+```bash
+bin/rails generate rails_pretty_logger:install
+```
+
+The generator creates `config/initializers/rails_pretty_logger.rb` and mounts the engine in `config/routes.rb`.
+
+You can also mount the engine manually:
 
 ```
 mount Rails::Pretty::Logger::Engine => "/rails-pretty-logger"
