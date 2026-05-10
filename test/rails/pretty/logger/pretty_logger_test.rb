@@ -83,6 +83,40 @@ module Rails
           FileUtils.rm_f(structured_log) if structured_log
         end
 
+        test "uses configured log line parser for date and severity filters" do
+          custom_log = Rails.root.join("log", "custom_parser_production.log")
+          File.write(custom_log, <<~LOG)
+            CUSTOM #{Date.yesterday.iso8601} ERROR payment failed yesterday
+            CUSTOM #{Date.current.iso8601} INFO payment accepted
+            CUSTOM #{Date.current.iso8601} ERROR payment failed today
+          LOG
+          Rails::Pretty::Logger.configure do |config|
+            config.log_line_parser = ->(line) do
+              if (match = line.match(/\ACUSTOM (?<date>\d{4}-\d{2}-\d{2}) (?<severity>\w+)/))
+                { timestamp: "#{match[:date]}T10:00:00Z", severity: match[:severity] }
+              end
+            end
+          end
+          logger = PrettyLogger.new(
+            ActionController::Parameters.new(
+              log_file: custom_log.to_s,
+              query: "payment",
+              severity: "ERROR",
+              date_range: {
+                start: Date.current.to_s,
+                end: Date.current.to_s
+              }
+            )
+          )
+
+          data = logger.log_data
+
+          assert_equal 1, data[:logs_count]
+          assert_equal ["CUSTOM #{Date.current.iso8601} ERROR payment failed today\n"], data[:paginated_logs]
+        ensure
+          FileUtils.rm_f(custom_log) if custom_log
+        end
+
         test "ignores unknown severity filters" do
           File.write(@log_file, "ERROR unknown severity should still render\n")
           logger = PrettyLogger.new(
@@ -126,6 +160,52 @@ module Rails
           assert_equal "200", group[:status]
           assert_equal "12ms", group[:duration]
           assert_includes group[:lines].join, "Processing by HomeController"
+        end
+
+        test "uses configured log line parser for request grouping" do
+          custom_log = Rails.root.join("log", "custom_request_parser_production.log")
+          File.write(custom_log, <<~LOG)
+            REQ #{Date.current.iso8601} PATCH /custom
+            custom request body
+            RESP 202 7ms
+          LOG
+          Rails::Pretty::Logger.configure do |config|
+            config.log_line_parser = ->(line) do
+              if (match = line.match(/\AREQ (?<date>\d{4}-\d{2}-\d{2}) (?<method>\w+) (?<path>\S+)/))
+                {
+                  timestamp: "#{match[:date]}T11:00:00Z",
+                  request_method: match[:method],
+                  request_path: match[:path]
+                }
+              elsif (match = line.match(/\ARESP (?<status>\d{3}) (?<duration>\S+)/))
+                {
+                  response_status: match[:status],
+                  duration: match[:duration]
+                }
+              end
+            end
+          end
+          logger = PrettyLogger.new(
+            ActionController::Parameters.new(
+              log_file: custom_log.to_s,
+              group: "request",
+              date_range: {
+                start: Date.current.to_s,
+                end: Date.current.to_s
+              }
+            )
+          )
+
+          group = logger.log_data[:paginated_logs].first
+
+          assert_equal :request, group[:type]
+          assert_equal "PATCH", group[:method]
+          assert_equal "/custom", group[:path]
+          assert_equal "202", group[:status]
+          assert_equal "7ms", group[:duration]
+          assert_includes group[:lines].join, "custom request body"
+        ensure
+          FileUtils.rm_f(custom_log) if custom_log
         end
 
         test "filters request groups by matching lines inside the group" do

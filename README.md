@@ -132,6 +132,20 @@ end
 
 `read_only` hides clear buttons and returns `403 Forbidden` from clear endpoints. `max_file_size` is optional; when set, files larger than the limit return `413 Payload Too Large` instead of being read through the dashboard.
 
+For custom log formats, configure a parser that returns metadata for lines it understands:
+
+```ruby
+Rails::Pretty::Logger.configure do |config|
+  config.log_line_parser = ->(line) do
+    if (match = line.match(/\A(?<timestamp>\S+) (?<severity>\w+) (?<message>.*)/))
+      { timestamp: match[:timestamp], severity: match[:severity] }
+    end
+  end
+end
+```
+
+Supported parser keys include `:timestamp`, `:severity`, `:request_method`, `:request_path`, `:request_ip`, `:response_status`, and `:duration`. These keys power date filters, severity filters, and request grouping.
+
 ## Contributing
 
 This project uses a Nix flake and direnv for local development:

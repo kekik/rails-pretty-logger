@@ -24,6 +24,7 @@ class InstallGeneratorTest < Rails::Generators::TestCase
       assert_includes initializer, "config.read_only = Rails.env.production?"
       assert_includes initializer, "config.max_file_size = 50.megabytes"
       assert_includes initializer, "config.tail_lines = 500"
+      assert_includes initializer, "config.log_line_parser"
     end
   end
 

@@ -113,6 +113,14 @@ module Rails::Pretty::Logger
       nil
     end
 
+    def self.custom_log_metadata(line)
+      parser = Rails::Pretty::Logger.configuration.log_line_parser
+      return {} unless parser.respond_to?(:call)
+
+      metadata = parser.call(line)
+      metadata.is_a?(Hash) ? metadata : {}
+    end
+
     def clear_logs
       File.open(@log_file, File::TRUNC) {}
     end
@@ -338,6 +346,20 @@ module Rails::Pretty::Logger
     end
 
     def request_start_metadata(line)
+      metadata = custom_log_metadata(line)
+      request_method = metadata_value(metadata, :request_method, :method)
+      request_path = metadata_value(metadata, :request_path, :path)
+
+      if request_method.present? && request_path.present?
+        return {
+          type: :request,
+          method: request_method.to_s,
+          path: request_path.to_s,
+          ip: metadata_value(metadata, :request_ip, :ip),
+          started_at: metadata_value(metadata, :request_started_at, :started_at, :timestamp, :time).to_s
+        }
+      end
+
       match = line.strip.match(/\AStarted\s+(?<method>[A-Z]+)\s+"(?<path>[^"]+)"(?:\s+for\s+(?<ip>\S+))?\s+at\s+(?<timestamp>.+)\z/)
       return unless match
 
@@ -351,6 +373,17 @@ module Rails::Pretty::Logger
     end
 
     def request_completion_metadata(line)
+      metadata = custom_log_metadata(line)
+      response_status = metadata_value(metadata, :response_status, :status)
+      duration = metadata_value(metadata, :duration, :request_duration)
+
+      if response_status.present? || duration.present?
+        return {
+          status: response_status.to_s,
+          duration: duration.to_s
+        }
+      end
+
       match = line.strip.match(/\ACompleted\s+(?<status>\d{3}).*?\sin\s+(?<duration>[\d.]+ms)/)
       return unless match
 
@@ -361,7 +394,8 @@ module Rails::Pretty::Logger
     end
 
     def date_from_log_line(line)
-      request_timestamp(line)&.to_date&.strftime("%Y-%m-%d") || structured_log_timestamp(line)&.to_date&.strftime("%Y-%m-%d")
+      timestamp = custom_log_timestamp(line) || request_timestamp(line) || structured_log_timestamp(line)
+      timestamp&.to_date&.strftime("%Y-%m-%d")
     rescue Date::Error, NoMethodError
       nil
     end
@@ -383,6 +417,9 @@ module Rails::Pretty::Logger
     end
 
     def structured_log_severity(line)
+      severity = custom_log_severity(line)
+      return severity if severity.present?
+
       payload = self.class.structured_log_payload(line)
       return unless payload
 
@@ -396,6 +433,29 @@ module Rails::Pretty::Logger
 
       nested_severity = nested_log["level"].to_s.upcase
       nested_severity if SEVERITIES.include?(nested_severity)
+    end
+
+    def custom_log_timestamp(line)
+      metadata_value(custom_log_metadata(line), :timestamp, :time, :datetime, :created_at)
+    end
+
+    def custom_log_severity(line)
+      severity = metadata_value(custom_log_metadata(line), :severity, :level, :log_level).to_s.upcase
+      severity if SEVERITIES.include?(severity)
+    end
+
+    def custom_log_metadata(line)
+      self.class.custom_log_metadata(line)
+    end
+
+    def metadata_value(metadata, *keys)
+      keys.each do |key|
+        string_key = key.to_s
+        return metadata[string_key] if metadata.key?(string_key)
+        return metadata[key] if metadata.key?(key)
+      end
+
+      nil
     end
 
   end
