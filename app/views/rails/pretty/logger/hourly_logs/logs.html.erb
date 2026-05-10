@@ -9,7 +9,7 @@
 
 <%= render "partials/error_pagination", log: @log, log_data: @log_data, locals: {path: "logs_hourly_logs_path"} %>
 
-  <% if @log_data[:logs_count] > 0 %>
+  <% if @log_data[:logs_count] > 0 && !rails_pretty_logger_read_only? %>
     <p>
       <%= button_to("Clear logs",
           clear_logs_hourly_logs_path(log_file: params[:log_file]),

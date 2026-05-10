@@ -5,6 +5,7 @@ module Rails::Pretty::Logger
     PER_PAGE = 12
 
     before_action :set_logger, except: [:index]
+    before_action :ensure_writable_rails_pretty_logger, only: [:clear_logs]
 
     def logs
       @log_data = @log.log_data

@@ -1,8 +1,9 @@
 require_dependency "rails/pretty/logger/application_controller"
 
-module Rails::Pretty::Logger
+  module Rails::Pretty::Logger
   class DashboardsController < ApplicationController
     before_action :set_logger, except: [:index]
+    before_action :ensure_writable_rails_pretty_logger, only: [:clear_logs]
 
     def logs
       @log_data = @log.log_data

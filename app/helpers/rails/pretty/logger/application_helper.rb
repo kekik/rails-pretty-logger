@@ -9,5 +9,9 @@ module Rails::Pretty::Logger
       index = name.split("/log/").last.capitalize
     end
 
+    def rails_pretty_logger_read_only?
+      Rails::Pretty::Logger.configuration.read_only?
+    end
+
   end
 end

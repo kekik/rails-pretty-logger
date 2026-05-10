@@ -2,12 +2,25 @@ require "active_support/core_ext/object/blank"
 require "active_support/core_ext/string/conversions"
 require "fileutils"
 require "pathname"
+require "rails/pretty/logger/configuration"
 require "rails/pretty/logger/engine"
 
 module Rails::Pretty::Logger
+  def self.configuration
+    @configuration ||= Configuration.new
+  end
+
+  def self.configure
+    yield configuration
+  end
+
+  def self.reset_configuration!
+    @configuration = Configuration.new
+  end
 
   class PrettyLogger
     class InvalidLogFile < StandardError; end
+    class FileTooLarge < StandardError; end
 
     attr_reader :log_file
 
@@ -75,6 +88,13 @@ module Rails::Pretty::Logger
         log[index][:file_size] = self.file_size(log_file).round(4)
       end
       log
+    end
+
+    def self.ensure_file_size_within_limit!(log_file)
+      max_file_size = Rails::Pretty::Logger.configuration.max_file_size
+      return if max_file_size.blank?
+
+      raise FileTooLarge if File.size(log_file) > max_file_size.to_i
     end
 
     def clear_logs
@@ -167,6 +187,8 @@ module Rails::Pretty::Logger
       paginated_logs = []
       page_start = @filter_params[:page].to_i * divider
       page_end = page_start + divider
+
+      self.class.ensure_file_size_within_limit!(@log_file)
 
       each_log_line(@log_file) do |line|
         paginated_logs << line if line_count >= page_start && line_count < page_end

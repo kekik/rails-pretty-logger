@@ -101,12 +101,27 @@ For production use, protect it with whatever authentication or authorization you
 
 ```ruby
 # config/initializers/rails_pretty_logger.rb
-Rails.application.config.x.rails_pretty_logger.authenticate_with = -> {
-  authenticate_user!
-}
+Rails::Pretty::Logger.configure do |config|
+  config.authenticate_with = -> { authenticate_user! }
+end
 ```
 
 The hook is evaluated inside the engine controller, so controller helpers such as `authenticate_user!`, `current_user`, `head`, and `redirect_to` are available when your application defines them.
+
+### Configuration
+
+Rails Pretty Logger can be configured from an initializer:
+
+```ruby
+# config/initializers/rails_pretty_logger.rb
+Rails::Pretty::Logger.configure do |config|
+  config.authenticate_with = -> { authenticate_user! }
+  config.read_only = Rails.env.production?
+  config.max_file_size = 50.megabytes
+end
+```
+
+`read_only` hides clear buttons and returns `403 Forbidden` from clear endpoints. `max_file_size` is optional; when set, files larger than the limit return `413 Payload Too Large` instead of being read through the dashboard.
 
 ## Contributing
 

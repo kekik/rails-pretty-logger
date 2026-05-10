@@ -18,14 +18,21 @@ class DashboardTest < ActionDispatch::IntegrationTest
   end
 
   test "authentication hook can block engine access" do
-    previous_hook = Rails.application.config.x.rails_pretty_logger.authenticate_with
+    Rails::Pretty::Logger.configure do |config|
+      config.authenticate_with = -> { head :unauthorized }
+    end
+
+    get "/rails-pretty-logger/dashboards"
+
+    assert_response :unauthorized
+  end
+
+  test "legacy authentication hook can block engine access" do
     Rails.application.config.x.rails_pretty_logger.authenticate_with = -> { head :unauthorized }
 
     get "/rails-pretty-logger/dashboards"
 
     assert_response :unauthorized
-  ensure
-    Rails.application.config.x.rails_pretty_logger.authenticate_with = previous_hook
   end
 
   test "renders selected log file" do
@@ -48,6 +55,41 @@ class DashboardTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to "/rails-pretty-logger/dashboards/logs?log_file=#{CGI.escape(@log_file.to_s)}"
     assert_empty File.read(@log_file)
+  end
+
+  test "read only mode blocks clearing selected log file" do
+    Rails::Pretty::Logger.configure { |config| config.read_only = true }
+
+    post "/rails-pretty-logger/dashboards/clear_logs", params: {
+      log_file: @log_file.to_s
+    }
+
+    assert_response :forbidden
+    assert_includes File.read(@log_file), "Completed 200 OK"
+  end
+
+  test "read only mode hides clear buttons" do
+    Rails::Pretty::Logger.configure { |config| config.read_only = true }
+
+    get "/rails-pretty-logger/dashboards"
+
+    assert_response :success
+    assert_not_includes response.body, "clear_logs"
+  end
+
+  test "rejects selected log file when max file size is exceeded" do
+    Rails::Pretty::Logger.configure { |config| config.max_file_size = 1 }
+
+    get "/rails-pretty-logger/dashboards/logs", params: {
+      log_file: @log_file.to_s,
+      date_range: {
+        start: Date.current.to_s,
+        end: Date.current.to_s
+      }
+    }
+
+    assert_response 413
+    assert_includes response.body, "Log file is too large"
   end
 
   test "rejects log files outside the Rails log directory" do

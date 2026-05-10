@@ -15,7 +15,7 @@
     </p>
   <%- end%>
 
-<% if @log_data[:logs_count] > 0 %>
+<% if @log_data[:logs_count] > 0 && !rails_pretty_logger_read_only? %>
 <p>
   <%= button_to("Clear logs",
       clear_logs_dashboards_path(log_file: params[:log_file]),
