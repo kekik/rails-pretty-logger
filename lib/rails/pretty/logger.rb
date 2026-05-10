@@ -90,35 +90,41 @@ module Rails::Pretty::Logger
     end
 
     def filter_logs_with_date(file)
-      arr = []
+      each_filtered_log_line(file).to_a
+    end
+
+    def each_filtered_log_line(file)
+      return enum_for(:each_filtered_log_line, file) unless block_given?
+
       start = false
 
       IO.foreach(file) do |line|
         if get_date_from_log_line(line)
           start = true
-          arr.push(line)
+          yield line
         elsif start && !(line_include_date?(line))
-          arr.push(line)
+          yield line
         else
           start = false
         end
       end
-      return arr
     end
 
     def get_test_logs(file)
-      arr = []
-      IO.foreach(file) do |line|
-        arr.push(line)
-      end
-      return arr
+      IO.foreach(file).to_a
     end
 
     def get_logs_from_file(file)
+      each_log_line(file).to_a
+    end
+
+    def each_log_line(file)
+      return enum_for(:each_log_line, file) unless block_given?
+
       if test_log?(file) || hourly_log?(file)
-        get_test_logs(file)
+        IO.foreach(file) { |line| yield line }
       else
-        filter_logs_with_date(file)
+        each_filtered_log_line(file) { |line| yield line }
       end
     end
 
@@ -157,11 +163,18 @@ module Rails::Pretty::Logger
     def log_data
       error = validate_date
       divider = set_divider_value
-      logs = get_logs_from_file(@log_file)
-      logs_count =  (logs.count.to_f / divider).ceil
-      paginated_logs = logs[@filter_params[:page].to_i * divider, divider] || []
+      line_count = 0
+      paginated_logs = []
+      page_start = @filter_params[:page].to_i * divider
+      page_end = page_start + divider
+
+      each_log_line(@log_file) do |line|
+        paginated_logs << line if line_count >= page_start && line_count < page_end
+        line_count += 1
+      end
+
       data = {}
-      data[:logs_count] = logs_count
+      data[:logs_count] = (line_count.to_f / divider).ceil
       data[:paginated_logs] = paginated_logs
       data[:error] = error
       return data

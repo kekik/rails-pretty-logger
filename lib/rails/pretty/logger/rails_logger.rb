@@ -94,28 +94,42 @@ module Rails::Pretty::Logger
         end
 
         def shift_log_period(period_end)
-          suffix = period_end.strftime(@shift_period_suffix)
+          with_rotation_lock do
+            suffix = period_end.strftime(@shift_period_suffix)
 
-          suffix_year = period_end.strftime('%Y')
-          suffix_month = period_end.strftime('%m')
-          suffix_day = period_end.strftime('%d')
+            suffix_year = period_end.strftime('%Y')
+            suffix_month = period_end.strftime('%m')
+            suffix_day = period_end.strftime('%d')
 
-          if @shift_age == 'hourly'
-            suffix = period_end.strftime('%Y%m%d_%H%M')
+            if @shift_age == 'hourly'
+              suffix = period_end.strftime('%Y%m%d_%H%M')
+            end
+
+            age_file = available_log_path("#{@filename}.#{suffix}")
+
+            @dev.close rescue nil
+
+            File.rename("#{@filename}", age_file)
+            new_path = File.join(Rails.root, 'log', 'hourly', suffix_year, suffix_month, suffix_day)
+            FileUtils.mkdir_p new_path
+            destination = available_log_path(File.join(new_path, File.basename(age_file)))
+            FileUtils.mv age_file, destination
+            delete_old_hourly_files
+            @dev = create_logfile(@filename)
+            true
           end
+        end
 
-          age_file = available_log_path("#{@filename}.#{suffix}")
+        def with_rotation_lock
+          FileUtils.mkdir_p(File.dirname(rotation_lock_path))
+          File.open(rotation_lock_path, File::RDWR | File::CREAT, 0644) do |lock|
+            lock.flock(File::LOCK_EX)
+            yield
+          end
+        end
 
-          @dev.close rescue nil
-
-          File.rename("#{@filename}", age_file)
-          new_path = File.join(Rails.root, 'log', 'hourly', suffix_year, suffix_month, suffix_day)
-          FileUtils.mkdir_p new_path
-          destination = available_log_path(File.join(new_path, File.basename(age_file)))
-          FileUtils.mv age_file, destination
-          delete_old_hourly_files
-          @dev = create_logfile(@filename)
-          return true
+        def rotation_lock_path
+          Rails.root.join("tmp", "rails_pretty_logger", "#{File.basename(@filename)}.rotate.lock").to_s
         end
 
         def available_log_path(path)

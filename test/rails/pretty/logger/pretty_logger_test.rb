@@ -33,6 +33,40 @@ module Rails
           assert_includes data[:paginated_logs].first, Date.current.to_s
         end
 
+        test "paginates large log files without materializing the full log array" do
+          large_log = Rails.root.join("log", "large_production.log")
+          File.open(large_log, "w") do |file|
+            1_000.times do |index|
+              file.puts %(Started GET "/large/#{index}" for 127.0.0.1 at #{Date.current.strftime("%Y-%m-%d")} 11:17:00 +0300)
+              file.puts "Completed LARGE ENTRY #{index}"
+            end
+          end
+
+          logger = PrettyLogger.new(
+            ActionController::Parameters.new(
+              log_file: large_log.to_s,
+              page: "3",
+              date_range: {
+                start: Date.current.to_s,
+                end: Date.current.to_s,
+                divider: "25"
+              }
+            )
+          )
+
+          logger.define_singleton_method(:get_logs_from_file) do |_file|
+            flunk "log_data should stream lines instead of loading the full log file"
+          end
+
+          data = logger.log_data
+
+          assert_equal 80, data[:logs_count]
+          assert_equal 25, data[:paginated_logs].count
+          assert_includes data[:paginated_logs].join, "LARGE ENTRY"
+        ensure
+          FileUtils.rm_f(large_log) if large_log
+        end
+
         test "validates date ranges" do
           logger = PrettyLogger.new(
             ActionController::Parameters.new(
