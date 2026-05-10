@@ -54,6 +54,19 @@ module Rails
           assert logs.all? { |log| log.key?(:file_size) }
         end
 
+        test "does not include hourly files in the main log file list" do
+          hourly_file = Rails.root.join("log", "hourly", "2026", "05", "10", "pretty_logger_test.log.20260510_1100")
+          FileUtils.mkdir_p(hourly_file.dirname)
+          File.write(hourly_file, DummyLog.entry)
+
+          logs = PrettyLogger.get_log_file_list.values
+
+          assert logs.any? { |log| log[:file_name] == @log_file.to_s }
+          assert_not logs.any? { |log| log[:file_name] == hourly_file.to_s }
+        ensure
+          FileUtils.rm_rf(Rails.root.join("log", "hourly"))
+        end
+
         test "clears a selected log file" do
           PrettyLogger.new(ActionController::Parameters.new(log_file: @log_file.to_s)).clear_logs
 
@@ -70,6 +83,27 @@ module Rails
           end
         ensure
           FileUtils.rm_f(outside_log) if outside_log
+        end
+
+        test "rejects symlinks that point outside the Rails log directory" do
+          outside_log = Rails.root.join("tmp", "pretty_logger_symlink_target.log")
+          log_link = Rails.root.join("log", "pretty_logger_symlink.log")
+          FileUtils.mkdir_p(outside_log.dirname)
+          File.write(outside_log, DummyLog.entry)
+          FileUtils.ln_s(outside_log, log_link)
+
+          assert_raises PrettyLogger::InvalidLogFile do
+            PrettyLogger.new(ActionController::Parameters.new(log_file: log_link.to_s))
+          end
+        ensure
+          FileUtils.rm_f(log_link) if log_link
+          FileUtils.rm_f(outside_log) if outside_log
+        end
+
+        test "resolves relative log file names inside the Rails log directory" do
+          logger = PrettyLogger.new(ActionController::Parameters.new(log_file: @log_file.basename.to_s))
+
+          assert_equal @log_file.realpath.to_s, logger.log_file
         end
 
         test "uses default divider when divider is not positive" do

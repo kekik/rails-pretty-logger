@@ -17,6 +17,17 @@ class DashboardTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Dashboard_test.log"
   end
 
+  test "authentication hook can block engine access" do
+    previous_hook = Rails.application.config.x.rails_pretty_logger.authenticate_with
+    Rails.application.config.x.rails_pretty_logger.authenticate_with = -> { head :unauthorized }
+
+    get "/rails-pretty-logger/dashboards"
+
+    assert_response :unauthorized
+  ensure
+    Rails.application.config.x.rails_pretty_logger.authenticate_with = previous_hook
+  end
+
   test "renders selected log file" do
     get "/rails-pretty-logger/dashboards/logs", params: {
       log_file: @log_file.to_s,

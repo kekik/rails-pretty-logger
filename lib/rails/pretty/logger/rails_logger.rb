@@ -104,28 +104,28 @@ module Rails::Pretty::Logger
             suffix = period_end.strftime('%Y%m%d_%H%M')
           end
 
-          age_file = "#{@filename}.#{suffix}"
-
-          if FileTest.exist?(age_file)
-            # try to avoid filename crash caused by Timestamp change.
-            idx = 0
-            # .99 can be overridden; avoid too much file search with 'loop do'
-            while idx < 100
-              idx += 1
-              age_file = "#{@filename}.#{suffix}.#{idx}"
-              break unless FileTest.exist?(age_file)
-            end
-          end
+          age_file = available_log_path("#{@filename}.#{suffix}")
 
           @dev.close rescue nil
 
           File.rename("#{@filename}", age_file)
           new_path = File.join(Rails.root, 'log', 'hourly', suffix_year, suffix_month, suffix_day)
           FileUtils.mkdir_p new_path
-          FileUtils.mv age_file, new_path, :force => true
+          destination = available_log_path(File.join(new_path, File.basename(age_file)))
+          FileUtils.mv age_file, destination
           delete_old_hourly_files
           @dev = create_logfile(@filename)
           return true
+        end
+
+        def available_log_path(path)
+          candidate = path
+          index = 0
+          while File.exist?(candidate)
+            index += 1
+            candidate = "#{path}.#{index}"
+          end
+          candidate
         end
 
         def delete_old_hourly_files

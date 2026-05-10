@@ -32,6 +32,23 @@ module Rails
           assert_includes File.read(rotated_file), "rotated message"
         end
 
+        test "does not overwrite an existing hourly file for the same timestamp" do
+          existing_file = Rails.root.join("log", "hourly", "2026", "05", "10", "#{@log_name}.log.20260510_1100")
+          FileUtils.mkdir_p(existing_file.dirname)
+          File.write(existing_file, "existing hourly log")
+
+          @logger = ConsoleLogger.new(@log_name, "hourly", file_count: 5)
+          @logger.info("new rotated message")
+
+          logdev.shift_log_period(Time.local(2026, 5, 10, 11, 0, 0))
+
+          collision_file = Rails.root.join("log", "hourly", "2026", "05", "10", "#{@log_name}.log.20260510_1100.1")
+
+          assert_includes File.read(existing_file), "existing hourly log"
+          assert_path_exists collision_file
+          assert_includes File.read(collision_file), "new rotated message"
+        end
+
         test "keeps hourly rotated files within file_count" do
           old_file = Rails.root.join("log", "hourly", "2026", "05", "10", "#{@log_name}.log.20260510_1000")
           FileUtils.mkdir_p(old_file.dirname)

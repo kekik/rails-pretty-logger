@@ -6,7 +6,7 @@ Pretty Logger is a Rails engine for checking application logs from a mounted das
 
 | Gem version | Ruby | Rails | Notes |
 | --- | --- | --- | --- |
-| `0.3.x` | `>= 3.1` | `>= 7.1`, `< 9.0` | Current line. CI runs Rails 7.1, 7.2, and 8.0 with Ruby 3.3. |
+| `0.3.x` | `>= 3.1` | `>= 7.1`, `< 9.0` | Current line. CI runs Rails 7.1, 8.0, and 8.1 with Ruby 3.3. |
 | `0.2.8` | `>= 2.2.2` | `>= 5.0`, `<= 6.1.4.1` | Legacy line for older Rails apps. Pin this version if you still need Rails 5 or Rails 6.1 support. |
 
 ## Usage
@@ -119,7 +119,7 @@ bundle exec rails test
 bundle exec ruby -Itest test/system/rails_pretty_logger_interaction_test.rb
 ```
 
-CI runs the same test suite against Rails 7.1, 7.2, and 8.0 before PRs and pushes to `main` or `master`.
+CI runs the same test suite against Rails 7.1, 8.0, and 8.1 before PRs and pushes to `main` or `master`.
 
 1. [Fork][fork] the [official repository][repo].
 2. [Create a topic branch.][branch]
