@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.email       = ["cbaykam@gmail.com", "mehmetcelik4@gmail.com"]
   spec.summary     = "Rails engine for browsing and highlighting application logs."
   spec.description = "Rails Pretty Logger provides a mounted dashboard for browsing log files, highlighting entries, clearing logs, and reading hourly rotated log files."
-  spec.homepage    = "https://github.com/MehmetCelik4/rails-pretty-logger"
+  spec.homepage    = "https://github.com/kekik/rails-pretty-logger"
   spec.license     = "MIT"
   spec.required_ruby_version = ">= 3.3"
   spec.metadata    = {

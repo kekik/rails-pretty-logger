@@ -252,7 +252,7 @@ GitHub Actions runs on pull requests and pushes to `main` or `master`. The CI ma
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
-[repo]: https://github.com/MehmetCelik4/rails-pretty-logger/tree/master
+[repo]: https://github.com/kekik/rails-pretty-logger/tree/master
 [fork]: https://help.github.com/articles/fork-a-repo/
 [branch]: https://help.github.com/articles/creating-and-deleting-branches-within-your-repository/
 [pr]: https://help.github.com/articles/using-pull-requests/
