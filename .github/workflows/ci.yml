@@ -18,10 +18,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        rails-version:
-          - "~> 7.1.0"
-          - "~> 7.2.0"
-          - "~> 8.0.0"
+        include:
+          - rails-version: "~> 7.1.0"
+            ruby-shell: ruby33
+          - rails-version: "~> 8.0.0"
+            ruby-shell: ruby33
+          - rails-version: "~> 8.1.0"
+            ruby-shell: ruby33
 
     env:
       RAILS_VERSION: ${{ matrix.rails-version }}
@@ -34,13 +37,13 @@ jobs:
         uses: cachix/install-nix-action@v31
 
       - name: Install gems
-        run: nix develop -c bundle install
+        run: nix develop .#${{ matrix.ruby-shell }} -c bundle install
 
       - name: Run Ruby tests
-        run: nix develop -c bundle exec rails test
+        run: nix develop .#${{ matrix.ruby-shell }} -c bundle exec rails test
 
       - name: Run browser tests
-        run: nix develop -c bundle exec ruby -Itest test/system/rails_pretty_logger_interaction_test.rb
+        run: nix develop .#${{ matrix.ruby-shell }} -c bundle exec ruby -Itest test/system/rails_pretty_logger_interaction_test.rb
 
       - name: Build gem
-        run: nix develop -c gem build rails-pretty-logger.gemspec
+        run: nix develop .#${{ matrix.ruby-shell }} -c gem build rails-pretty-logger.gemspec

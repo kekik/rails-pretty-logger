@@ -10,14 +10,10 @@ module Rails::Pretty::Logger
       progname: nil, formatter: nil, datetime_format: nil,
       shift_period_suffix: '%Y%m%d')
 
-      self.level = level
-      self.progname = progname
-      @default_formatter = Formatter.new
-      self.datetime_format = datetime_format
-      self.formatter = formatter
+      super(nil, level: level, progname: progname, formatter: formatter, datetime_format: datetime_format)
       @logdev = nil
       if logdev
-        log_name = "log/" + logdev + ".log"
+        log_name = Rails.root.join("log", "#{logdev}.log").to_s
         @logdev = LoggerDevice.new(log_name, :shift_age => shift_age,
           :shift_size => shift_size,
           :shift_period_suffix => shift_period_suffix, file_count: file_count )
@@ -98,48 +94,70 @@ module Rails::Pretty::Logger
         end
 
         def shift_log_period(period_end)
-          suffix = period_end.strftime(@shift_period_suffix)
+          with_rotation_lock do
+            suffix = period_end.strftime(@shift_period_suffix)
 
-          suffix_year = period_end.strftime('%Y')
-          suffix_month = period_end.strftime('%m')
-          suffix_day = period_end.strftime('%d')
+            suffix_year = period_end.strftime('%Y')
+            suffix_month = period_end.strftime('%m')
+            suffix_day = period_end.strftime('%d')
 
-          if @shift_age == 'hourly'
-            suffix = period_end.strftime('%Y%m%d_%H%M')
-          end
-
-          age_file = "#{@filename}.#{suffix}"
-
-          if FileTest.exist?(age_file)
-            # try to avoid filename crash caused by Timestamp change.
-            idx = 0
-            # .99 can be overridden; avoid too much file search with 'loop do'
-            while idx < 100
-              idx += 1
-              age_file = "#{@filename}.#{suffix}.#{idx}"
-              break unless FileTest.exist?(age_file)
+            if @shift_age == 'hourly'
+              suffix = period_end.strftime('%Y%m%d_%H%M')
             end
+
+            age_file = available_log_path("#{@filename}.#{suffix}")
+
+            @dev.close rescue nil
+
+            File.rename("#{@filename}", age_file)
+            new_path = File.join(Rails.root, 'log', 'hourly', suffix_year, suffix_month, suffix_day)
+            FileUtils.mkdir_p new_path
+            destination = available_log_path(File.join(new_path, File.basename(age_file)))
+            FileUtils.mv age_file, destination
+            delete_old_hourly_files
+            @dev = create_logfile(@filename)
+            true
           end
+        end
 
-          #delete old files
-          log_files = Dir[ File.join(Rails.root, 'log', 'hourly') + "/#{suffix_year}/**/*"].reject {|fn| File.directory?(fn) }
-          while (log_files.length > @file_count) do
-            arr = log_files.reduce([]){|memo, log_file| memo <<  File.ctime(log_file).to_i}
-            file_index = arr.index(arr.min)
-            file_path = log_files[file_index]
-            delete_old_file(file_path)
-            log_files = Dir[ File.join(Rails.root, 'log', 'hourly') + "/#{suffix_year}/**/*"].reject {|fn| File.directory?(fn) }
+        def with_rotation_lock
+          FileUtils.mkdir_p(File.dirname(rotation_lock_path))
+          File.open(rotation_lock_path, File::RDWR | File::CREAT, 0644) do |lock|
+            lock.flock(File::LOCK_EX)
+            yield
           end
+        end
 
-          @dev.close rescue nil
+        def rotation_lock_path
+          Rails.root.join("tmp", "rails_pretty_logger", "#{File.basename(@filename)}.rotate.lock").to_s
+        end
 
-          File.rename("#{@filename}", age_file)
-          old_log_path = Rails.root.join(age_file)
-          new_path = File.join(Rails.root, 'log', 'hourly', suffix_year, suffix_month, suffix_day)
-          FileUtils.mkdir_p new_path
-          FileUtils.mv old_log_path, new_path, :force => true
-          @dev = create_logfile(@filename)
-          return true
+        def available_log_path(path)
+          candidate = path
+          index = 0
+          while File.exist?(candidate)
+            index += 1
+            candidate = "#{path}.#{index}"
+          end
+          candidate
+        end
+
+        def delete_old_hourly_files
+          log_files = hourly_log_files
+          while log_files.length > @file_count
+            delete_old_file(log_files.min_by { |log_file| hourly_log_sort_key(log_file) })
+            log_files = hourly_log_files
+          end
+        end
+
+        def hourly_log_files
+          log_prefix = "#{File.basename(@filename)}."
+          Dir[File.join(Rails.root, 'log', 'hourly', '**', '*')]
+            .select { |file| File.file?(file) && File.basename(file).start_with?(log_prefix) }
+        end
+
+        def hourly_log_sort_key(file)
+          File.basename(file)[/\.([0-9]{8}_[0-9]{4})(?:\.[0-9]+)?\z/, 1] || File.mtime(file).utc.strftime("%Y%m%d_%H%M")
         end
 
         def delete_old_file(file_path)

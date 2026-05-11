@@ -5,8 +5,8 @@ module Rails::Pretty::Logger
   
   class ConsoleLogger < ActiveSupportLogger
 
-    def initialize(*args)
-      super(*args)
+    def initialize(*args, **kwargs)
+      super(*args, **kwargs)
       @formatter = ConsoleFormatter.new
     end
   end

@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.description = "Rails Pretty Logger provides a mounted dashboard for browsing log files, highlighting entries, clearing logs, and reading hourly rotated log files."
   spec.homepage    = "https://github.com/MehmetCelik4/rails-pretty-logger"
   spec.license     = "MIT"
-  spec.required_ruby_version = ">= 3.1"
+  spec.required_ruby_version = ">= 3.3"
   spec.metadata    = {
     "source_code_uri" => spec.homepage,
     "changelog_uri" => "#{spec.homepage}/releases"

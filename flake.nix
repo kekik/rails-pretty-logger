@@ -15,15 +15,13 @@
           playwright = pkgs.writeShellScriptBin "playwright" ''
             exec ${pkgs.nodejs}/bin/node ${pkgs.playwright-driver}/cli.js "$@"
           '';
-        in
-        {
-          default = pkgs.mkShell {
+          mkShell = ruby: pkgs.mkShell {
             packages = [
               pkgs.gcc
               pkgs.libyaml.dev
               pkgs.nodejs
               pkgs.pkg-config
-              pkgs.ruby_3_3
+              ruby
               pkgs.playwright-driver.browsers
               playwright
             ];
@@ -37,6 +35,10 @@
               export PLAYWRIGHT_CLI_EXECUTABLE_PATH="${playwright}/bin/playwright"
             '';
           };
+        in
+        {
+          default = mkShell pkgs.ruby_3_3;
+          ruby33 = mkShell pkgs.ruby_3_3;
         });
     };
 }

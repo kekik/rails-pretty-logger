@@ -5,16 +5,21 @@ module Rails
         isolate_namespace Rails::Pretty::Logger
 
         initializer "rails_pretty_logger.assets" do |app|
-          if app.config.respond_to?(:assets)
-            stylesheets_path = root.join("app/assets/stylesheets").to_s
-            app.config.assets.paths << stylesheets_path unless app.config.assets.paths.include?(stylesheets_path)
+          assets_config = app.config.assets if app.config.respond_to?(:assets)
+
+          if assets_config.respond_to?(:paths) && assets_config.respond_to?(:precompile)
+            %w[stylesheets javascripts].each do |asset_path|
+              path = root.join("app/assets", asset_path).to_s
+              assets_config.paths << path unless assets_config.paths.include?(path)
+            end
 
             %w[
+              rails/pretty/logger/application.js
               rails/pretty/logger/application.css
               rails/pretty/logger/dashboards.css
               rails/pretty/logger/list.css
             ].each do |asset|
-              app.config.assets.precompile << asset unless app.config.assets.precompile.include?(asset)
+              assets_config.precompile << asset unless assets_config.precompile.include?(asset)
             end
           end
         end

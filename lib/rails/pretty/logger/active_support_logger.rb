@@ -76,8 +76,8 @@ module Rails::Pretty::Logger
       end
     end
 
-    def initialize(*args)
-      super
+    def initialize(*args, **kwargs)
+      super(*args, **kwargs)
       @formatter = SimpleFormatter.new
       after_initialize if respond_to? :after_initialize
     end

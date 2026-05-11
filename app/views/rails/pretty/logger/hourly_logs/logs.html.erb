@@ -1,36 +1,56 @@
 <div class="logger_navbar">
-  <p>
-    <%= link_to('Main Logs',dashboards_path, html_options = {class: "dashboard_button"}) %>
-    <%= link_to('Hourly Logs ', hourly_logs_path, html_options = {class: "dashboard_button"}) %>
-  </p>
+  <div class="logger_navbar__heading">
+    <h1><%= t("rails_pretty_logger.navigation.hourly_logs") %></h1>
+  </div>
+
+  <nav class="logger_navbar__actions">
+    <%= link_to(t("rails_pretty_logger.navigation.main_logs"), dashboards_path, class: "dashboard_button") %>
+    <%= link_to(t("rails_pretty_logger.navigation.hourly_logs"), hourly_logs_path, class: "dashboard_button") %>
+  </nav>
 </div>
-<hr>
+
 <% if  @log_data[:logs_count] > 0 %>
 
+<% unless rails_pretty_logger_tail_mode? %>
 <%= render "partials/error_pagination", log: @log, log_data: @log_data, locals: {path: "logs_hourly_logs_path"} %>
+<% end %>
 
-  <% if @log_data[:logs_count] > 0 %>
+<div class="form-group log-controls">
+  <div class="log-toolbar">
+    <% if rails_pretty_logger_tail_mode? %>
+      <%= link_to(t("rails_pretty_logger.logs.filtered_view"), logs_hourly_logs_path(rails_pretty_logger_log_filter_params(include_mode: false).merge(date_range: { start: @log.start_date, end: @log.end_date, divider: set_divider(params) }))) %>
+    <% else %>
+      <%= link_to(t("rails_pretty_logger.logs.tail_last_lines", count: Rails::Pretty::Logger::PrettyLogger.tail_lines), logs_hourly_logs_path(rails_pretty_logger_log_filter_params.merge(mode: "tail"))) %>
+      <% if rails_pretty_logger_request_grouping? %>
+        <%= link_to(t("rails_pretty_logger.logs.plain_lines"), logs_hourly_logs_path(rails_pretty_logger_log_filter_params(include_group: false).merge(date_range: { start: @log.start_date, end: @log.end_date, divider: set_divider(params) }))) %>
+      <% else %>
+        <%= link_to(t("rails_pretty_logger.logs.group_requests"), logs_hourly_logs_path(rails_pretty_logger_log_filter_params.merge(group: "request", date_range: { start: @log.start_date, end: @log.end_date, divider: set_divider(params) }))) %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <%= render "partials/log_filters", path: "logs_hourly_logs_path" %>
+
+  <% if @log_data[:logs_count] > 0 && !rails_pretty_logger_read_only? %>
     <p>
-      <%= button_to("Clear logs",
+      <%= button_to(t("rails_pretty_logger.actions.clear_logs"),
           clear_logs_hourly_logs_path(log_file: params[:log_file]),
           method: :post,
           class: "clear_logs",
           form: { class: "clear_logs_form",
-          data: { turbo_confirm: "Are you sure to clear all logs? " }}) %>
+          data: { turbo_confirm: t("rails_pretty_logger.confirmations.clear_all") }}) %>
     </p>
   <% end %>
 </div>
 
 
-  <hr>
+<hr>
 
-  <%  @log_data[:paginated_logs].each do |line| %>
-      <%= check_highlight(line) %> <br>
-  <% end %>
+<%= render "partials/log_entries", log_data: @log_data %>
 
 <% else %>
 
   <div>
-    <h1 class="message">There is no log file to show</h1>
+    <h1 class="message"><%= t("rails_pretty_logger.states.no_logs") %></h1>
   </div>
 <% end %>
