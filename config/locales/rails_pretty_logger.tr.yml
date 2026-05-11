@@ -1,0 +1,35 @@
+tr:
+  rails_pretty_logger:
+    actions:
+      clear: "Temizle"
+      clear_logs: "Logları temizle"
+      sort: "%{direction} sırala"
+      submit: "Gönder"
+    confirmations:
+      clear_all: "Tüm logları temizlemek istediğine emin misin?"
+      clear_file: "%{file} dosyasındaki tüm logları temizlemek istediğine emin misin?"
+      open_file: "Log dosyası %{size} MB. Bu dosyayı açmak istediğine emin misin?"
+    filters:
+      clear_filters: "Filtreleri temizle"
+      end_date: "Bitiş tarihi:"
+      filter: "Filtrele"
+      logs_per_page: "Sayfa başına log:"
+      search: "Ara"
+      search_log_content: "Log içeriğinde ara"
+      severity: "Seviye"
+      start_date: "Başlangıç tarihi:"
+    logs:
+      file_size: "%{size} MB"
+      filtered_view: "Filtrelenmiş görünüm"
+      group_requests: "İstekleri grupla"
+      plain_lines: "Düz satırlar"
+      tail_last_lines: "Son %{count} satır"
+      ungrouped_lines: "Gruplanmamış satırlar"
+    navigation:
+      hourly_logs: "Saatlik loglar"
+      log_files: "Log dosyaları"
+      main_logs: "Ana loglar"
+      pagination: "Sayfalama"
+    states:
+      no_logs: "Gösterilecek log dosyası yok"
+      stdout_logging: "RAILS_LOG_TO_STDOUT mevcut. Log dosyası tutulmuyor."
